@@ -6,5 +6,4 @@ Giocatore::Giocatore(std::string nome, int saldo){
     this->nome=nome;
     this->saldo=saldo;
 }
-Giocatore::~Giocatore(){
-}
+Giocatore::~Giocatore(){}
