@@ -1,5 +1,3 @@
-#include <iostream>
-#include <string>
 #include "giocatore.hpp"
 
 Giocatore::Giocatore(std::string nome, int saldo){
@@ -7,3 +5,7 @@ Giocatore::Giocatore(std::string nome, int saldo){
     this->saldo=saldo;
 }
 Giocatore::~Giocatore(){}
+
+void Giocatore::modificaSaldo(int soldi){
+    saldo+=soldi;
+}
