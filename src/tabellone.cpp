@@ -26,5 +26,7 @@ void Tabellone::creaTabellone() {
         Proprieta("Via dei Mille", 125, 24, 58)
 
     };
+    //inconvenienti = std::vector<Inconvenienti>{};
+    //opportunita = std::vector<Opportunita>{};
 
 }
