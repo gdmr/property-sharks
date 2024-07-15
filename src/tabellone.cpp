@@ -1,12 +1,12 @@
 #include "tabellone.hpp"
 
 Tabellone::Tabellone() {
-    creaTabellone(16, 4, 4);
+    creaTabellone();
 }
 
 Tabellone::~Tabellone() {}
 
-void Tabellone::creaTabellone(int numeroCaselle, int numeroInconvenienti, int numeroOpportunita) {
+void Tabellone::creaTabellone() {
     caselle = std::vector<Proprieta>{
         Proprieta("Viale Monte Bello", 100, 20, 50),
         Proprieta("Corso della Vittoria", 120, 22, 55),

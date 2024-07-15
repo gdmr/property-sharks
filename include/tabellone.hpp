@@ -12,7 +12,7 @@ private:
 public:
     Tabellone();
     ~Tabellone();
-    void creaTabellone(int caselle, int incovenienti, int opportunita);
+    void creaTabellone();
 };
 
 
