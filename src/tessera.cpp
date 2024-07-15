@@ -1,4 +1,10 @@
 #include "tessera.hpp"
 
-Tessera::Tessera(std::string titolo) :titolo(titolo), proprietario("banca"){}
+Tessera::Tessera() : proprietario("banca"){}
 Tessera::~Tessera(){}
+void Tessera::setTitolo(std::string titolo){
+    this->titolo = titolo;
+}
+void Tessera::setProprietario(std::string nuovoProprietario){
+    proprietario= nuovoProprietario;
+}

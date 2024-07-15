@@ -1,17 +1,18 @@
 #include "tessera.hpp"
+#include "proprieta.hpp"
 #include <vector>
-#define totcaselle 16;
 #pragma once
 
 class Tabellone
 {
 private:
-    std::vector<Tessera> caselle;
+    std::vector<Proprieta> caselle;
     std::vector<Tessera> inconvenienti;
-    std::vector<Tessera> opportunità;
+    std::vector<Tessera> opportunita;
 public:
     Tabellone();
     ~Tabellone();
+    void creaTabellone(int caselle, int incovenienti, int opportunita);
 };
 
 

@@ -6,6 +6,8 @@ private:
     std::string titolo;
     std::string proprietario;
 public:
-    Tessera(std::string titolo);
+    Tessera();
     ~Tessera();
+    void setTitolo(std::string titolo);
+    void setProprietario(std::string proprietario);
 };
