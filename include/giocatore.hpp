@@ -10,17 +10,19 @@ private:
 std::string nome;
 int saldo;
 std::vector<Proprieta> proprietaPossedute;
+int posizione;
 
 
 public:
     Giocatore(std::string nome, int saldo);
     ~Giocatore();
     void modificaSaldo(int soldi);
-    void muoviGiocatore(int numeroCaselle); 
+    void muoviGiocatore(int lancio); 
     void acquistaProprieta(Proprieta proprieta);
     void vendiProprieta(Proprieta proprieta, Giocatore acquirente);
     void pagaAffitto(Giocatore proprietario, int importo);
-    int getSaldo();
+    int getSaldo() const;
+    int getPosizione() const;
     std::vector<Proprieta> getProprietaPossedute();
 };
 

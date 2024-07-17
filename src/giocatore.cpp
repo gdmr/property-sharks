@@ -1,15 +1,21 @@
 #include "giocatore.hpp"
 #include <algorithm>
 
-Giocatore::Giocatore(std::string nome, int saldo) : nome(nome), saldo(saldo), proprietaPossedute() {}
+Giocatore::Giocatore(std::string nome, int saldo) : nome(nome), saldo(saldo), proprietaPossedute(), posizione(1) {}
 Giocatore::~Giocatore(){}
 
 void Giocatore::modificaSaldo(int soldi){
     saldo+=soldi;
 }
 
-void Giocatore::muoviGiocatore(int numeroCaselle){
-
+void Giocatore::muoviGiocatore(int lancio){
+     posizione += lancio;
+    if (posizione > 16) {
+        posizione = (posizione % 16);
+        if (posizione == 0) {
+            posizione = 16;
+        }
+    }
 }
 
 void Giocatore::acquistaProprieta(Proprieta proprieta){
@@ -43,8 +49,12 @@ void Giocatore::pagaAffitto(Giocatore proprietario, int importo){
     modificaSaldo(-importo);
 }
 
-int Giocatore::getSaldo(){
+int Giocatore::getSaldo() const{
     return saldo;
+}
+
+int Giocatore::getPosizione() const{
+    return posizione;
 }
 
 std::vector<Proprieta> Giocatore::getProprietaPossedute(){
