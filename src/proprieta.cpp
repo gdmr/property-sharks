@@ -35,3 +35,13 @@ int Proprieta::calcolaPagamento() {
 int Proprieta::getCosto(){
     return costoProprieta;
 }
+
+  // Operatore di uguaglianza
+bool Proprieta::operator==(Proprieta other) {
+    return getTitolo() == other.getTitolo();
+}
+
+ // Operatore di uguaglianza per confrontare Proprieta con std::string (titolo)
+bool Proprieta::operator==(std::string titolo) {
+        return getTitolo() == titolo;
+    }

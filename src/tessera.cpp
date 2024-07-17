@@ -8,3 +8,9 @@ void Tessera::setTitolo(std::string titolo){
 void Tessera::setProprietario(std::string nuovoProprietario){
     proprietario= nuovoProprietario;
 }
+std::string Tessera::getTitolo(){
+   return titolo;
+}
+std::string Tessera::getProprietario(){
+    return proprietario;
+}

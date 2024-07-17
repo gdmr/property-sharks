@@ -1,5 +1,6 @@
 #include "tessera.hpp"
 #include <iostream>
+#pragma once
 
 class Proprieta : public Tessera
 {
@@ -19,4 +20,6 @@ public:
     int calcolaPagamento();
     int getNumeroCase();
     int getCosto();
+    bool operator==(Proprieta other);
+    bool operator==(std::string titolo);
 };

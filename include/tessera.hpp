@@ -11,4 +11,6 @@ public:
     ~Tessera();
     void setTitolo(std::string titolo);
     void setProprietario(std::string proprietario);
+    std::string getTitolo();
+    std::string getProprietario();
 };
