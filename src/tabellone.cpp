@@ -26,7 +26,21 @@ void Tabellone::creaTabellone() {
         Proprieta("Via dei Mille", 125, 24, 58)
 
     };
-    //inconvenienti = std::vector<Inconvenienti>{};
-    //opportunita = std::vector<Opportunita>{};
+
+    inconvenienti = std::vector<Inconvenienti>{
+        Inconvenienti("Vai in prigione", 0, true),
+        Inconvenienti("Bollo auto", 50, false),
+        Inconvenienti("Eccesso di velocità", 100, true),
+        Inconvenienti("Vai in prigione", 0, true)
+
+    };
+
+    opportunita = std::vector<Opportunita>{
+      Opportunita("Piccolo boost", false, 500),
+      Opportunita("Evasione fiscale", true, 10),
+      Opportunita("Esci di prigione", true, 0),
+      Opportunita("Giorno fortunato", false, 100),
+    };
+
 
 }
