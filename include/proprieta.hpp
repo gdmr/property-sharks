@@ -18,4 +18,5 @@ public:
     void costruisciAlbergo();
     int calcolaPagamento();
     int getNumeroCase();
+    int getCosto();
 };
