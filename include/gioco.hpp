@@ -11,6 +11,7 @@ public:
     Gioco();
     ~Gioco();
     void inizializza();
+    std::vector<Giocatore> getListaGiocatori();
     void gestisciTurno();
     bool controlloVittoria();
 };

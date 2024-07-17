@@ -8,3 +8,6 @@ Gioco::~Gioco(){}
 void Gioco::inizializza(){
 tabellone.creaTabellone();
 }
+std::vector<Giocatore> Gioco::getListaGiocatori(){
+    return giocatori;
+}
