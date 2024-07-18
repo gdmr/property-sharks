@@ -16,7 +16,7 @@ std::vector<Giocatore> Gioco::getListaGiocatori(){
 }
 
   void Gioco::eseguiTurno(){
-    Giocatore g1=giocatori.back();;
+    Giocatore &g1 = giocatori.back();
     std::cout << "d per lanciare il dado, x per passare il turno senza lanciare il dado \n";
     char inserito;
     int result;
@@ -24,8 +24,8 @@ std::vector<Giocatore> Gioco::getListaGiocatori(){
     if(inserito=='d'){
     result = dadi.lanciaDadi();
     std::cout << "Risultato del lancio: "<< result <<"\n";
-    std::cout << "Posizione attuale: " <<g1.getPosizione() << "\n";
     g1.muoviGiocatore(result);
+    std::cout << "Posizione attuale: " <<g1.getPosizione() << "\n";
     }
 
 
