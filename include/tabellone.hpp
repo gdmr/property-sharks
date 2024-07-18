@@ -8,14 +8,14 @@
 class Tabellone
 {
 private:
-    std::vector<Proprieta> caselle;
+    std::vector<Tessera> caselle;
     std::vector<Inconvenienti> inconvenienti;
     std::vector<Opportunita> opportunita;
 public:
     Tabellone();
     ~Tabellone();
     void creaTabellone();
-    Proprieta getProprieta(int posizione);
+    Tessera getTessera(int posizione);
     Inconvenienti getInconveniente();
     Opportunita getOpportunita();
 };

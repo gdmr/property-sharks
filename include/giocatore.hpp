@@ -11,6 +11,7 @@ std::string nome;
 int saldo;
 std::vector<Proprieta> proprietaPossedute;
 int posizione;
+int turniDaSaltare;
 
 
 public:
@@ -24,5 +25,6 @@ public:
     int getSaldo() const;
     int getPosizione() const;
     std::vector<Proprieta> getProprietaPossedute();
+    void vaiInPrigione();
 };
 

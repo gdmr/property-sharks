@@ -27,7 +27,8 @@ std::vector<Giocatore> Gioco::getListaGiocatori(){
     g1.muoviGiocatore(result);
     Proprieta p1=tabellone.getProprieta(g1.getPosizione());
     std::cout<<p1.getTitolo()<<"\n";
-
+    std::cout << "Cosa vuoi fare con questa proprietà? \n";
+    //codice da implementare
   
     std::cout << "Posizione attuale: " <<g1.getPosizione() << "\n";
     }

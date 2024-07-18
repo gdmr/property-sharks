@@ -1,7 +1,7 @@
 #include "giocatore.hpp"
 #include <algorithm>
 
-Giocatore::Giocatore(std::string nome, int saldo) : nome(nome), saldo(saldo), proprietaPossedute(), posizione(1) {}
+Giocatore::Giocatore(std::string nome, int saldo) : nome(nome), saldo(saldo), proprietaPossedute(), posizione(1), turniDaSaltare(0)  {}
 Giocatore::~Giocatore(){}
 
 void Giocatore::modificaSaldo(int soldi){
@@ -60,3 +60,8 @@ int Giocatore::getPosizione() const{
 std::vector<Proprieta> Giocatore::getProprietaPossedute(){
     return proprietaPossedute;
 }
+
+void Giocatore::vaiInPrigione() {
+        std::cout << nome << " è andato in prigione e deve saltare due turni.\n";
+        turniDaSaltare = 2;
+    }
