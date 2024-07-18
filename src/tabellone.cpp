@@ -8,7 +8,7 @@ Tabellone::~Tabellone() {}
 
 void Tabellone::creaTabellone() {
     caselle = std::vector<Proprieta>{
-        Proprieta("Viale Monte Bello", 100, 20, 50),
+        Proprieta("START", 100, 20, 50),
         Proprieta("Corso della Vittoria", 120, 22, 55),
         Proprieta("Via Roma", 150, 25, 60),
         Proprieta("Piazza Grande", 180, 28, 65),
@@ -43,4 +43,10 @@ void Tabellone::creaTabellone() {
     };
 
 
+}
+
+Proprieta Tabellone::getProprieta(int posizione){
+     if (posizione >= 0 && posizione < caselle.size()) {
+        return caselle[posizione];
+    }
 }

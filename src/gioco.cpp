@@ -25,6 +25,10 @@ std::vector<Giocatore> Gioco::getListaGiocatori(){
     result = dadi.lanciaDadi();
     std::cout << "Risultato del lancio: "<< result <<"\n";
     g1.muoviGiocatore(result);
+    Proprieta p1=tabellone.getProprieta(g1.getPosizione());
+    std::cout<<p1.getTitolo()<<"\n";
+
+  
     std::cout << "Posizione attuale: " <<g1.getPosizione() << "\n";
     }
 

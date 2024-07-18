@@ -15,6 +15,9 @@ public:
     Tabellone();
     ~Tabellone();
     void creaTabellone();
+    Proprieta getProprieta(int posizione);
+    Inconvenienti getInconveniente();
+    Opportunita getOpportunita();
 };
 
 
