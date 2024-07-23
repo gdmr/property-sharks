@@ -1,7 +1,7 @@
 #include "giocatore.hpp"
 #include <algorithm>
 
-Giocatore::Giocatore(std::string nome, int saldo) : nome(nome), saldo(saldo), proprietaPossedute(), posizione(1), turniDaSaltare(0)  {}
+Giocatore::Giocatore(std::string nome, int saldo, bool bot) : nome(nome), saldo(saldo), proprietaPossedute(), posizione(1), turniDaSaltare(0), bot(bot)  {}
 Giocatore::~Giocatore(){}
 
 void Giocatore::modificaSaldo(int soldi){
@@ -10,10 +10,10 @@ void Giocatore::modificaSaldo(int soldi){
 
 void Giocatore::muoviGiocatore(int lancio){
      posizione += lancio;
-    if (posizione > 16) {
-        posizione = (posizione % 16);
+    if (posizione > 30) {
+        posizione = (posizione % 30);
         if (posizione == 0) {
-            posizione = 16;
+            posizione = 30;
         }
     }
 }
@@ -65,3 +65,7 @@ void Giocatore::vaiInPrigione() {
         std::cout << nome << " è andato in prigione e deve saltare due turni.\n";
         turniDaSaltare = 2;
     }
+
+bool Giocatore::isBot(){
+    return bot;
+}

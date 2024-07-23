@@ -12,10 +12,11 @@ int saldo;
 std::vector<Proprieta> proprietaPossedute;
 int posizione;
 int turniDaSaltare;
+bool bot; 
 
 
 public:
-    Giocatore(std::string nome, int saldo);
+    Giocatore(std::string nome, int saldo, bool bot);
     ~Giocatore();
     void modificaSaldo(int soldi);
     void muoviGiocatore(int lancio); 
@@ -26,5 +27,6 @@ public:
     int getPosizione() const;
     std::vector<Proprieta> getProprietaPossedute();
     void vaiInPrigione();
+    bool isBot();
 };
 

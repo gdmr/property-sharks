@@ -25,8 +25,22 @@ std::vector<Giocatore> Gioco::getListaGiocatori(){
     result = dadi.lanciaDadi();
     std::cout << "Risultato del lancio: "<< result <<"\n";
     g1.muoviGiocatore(result);
-    Proprieta p1=tabellone.getProprieta(g1.getPosizione());
-    std::cout<<p1.getTitolo()<<"\n";
+    std::shared_ptr<Tessera> casella = tabellone.getTessera(g1.getPosizione());
+    std::string tipo=casella->getTipo();
+   if (tipo == "Propieta") {
+        std::cout << "Prorpietà" << std::endl;
+        std::cout<<casella->getTitolo()<<"\n";
+    } else if (tipo == "Opportunita") {
+        std::cout << "Opportunità" << std::endl;
+    } else if (tipo == "Inconvenienti") {
+        std::cout << "Inconvenienti" << std::endl;
+    }else if (tipo == "Prigione") {
+        std::cout << "Prigione" << std::endl;
+    }  
+    else {
+        std::cout << "Caso non riconosciuto" << std::endl;
+    }
+    //std::cout<<p1.getTitolo()<<"\n";
     std::cout << "Cosa vuoi fare con questa proprietà? \n";
     //codice da implementare
   

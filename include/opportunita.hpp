@@ -11,5 +11,6 @@ private:
 public:
  Opportunita(std::string nome, bool bonus, int importo);
  ~Opportunita();
+ std::string getTipo() const override { return "Opportunita";}
 
 };

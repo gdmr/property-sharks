@@ -22,4 +22,5 @@ public:
     int getCosto();
     bool operator==(Proprieta other);
     bool operator==(std::string titolo);
+    std::string getTipo() const override { return "Proprieta";}
 };

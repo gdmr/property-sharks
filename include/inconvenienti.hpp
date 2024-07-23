@@ -11,5 +11,5 @@ private:
 public:
  Inconvenienti(std::string nome, int importo, bool prigione);
  ~Inconvenienti();
-
+ std::string getTipo() const override { return "Inconvenienti";}
 };

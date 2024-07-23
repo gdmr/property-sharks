@@ -13,4 +13,5 @@ public:
     void setProprietario(std::string proprietario);
     std::string getTitolo();
     std::string getProprietario();
+    virtual std::string getTipo() const = 0;
 };
