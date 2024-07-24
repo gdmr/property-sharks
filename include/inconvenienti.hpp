@@ -1,5 +1,6 @@
 #include "tessera.hpp"
 #include <iostream>
+#pragma once
 
 class Inconvenienti : public Tessera
 {
@@ -15,6 +16,8 @@ Inconvenienti(std::string nome, int importo, bool prigione); //costruttore singo
 virtual ~Inconvenienti();
 std::string getTipo() const override { return "Inconvenienti";}
 Inconvenienti pescaCarta(); 
+int getImporto();
+bool isPrigione();
 };
 
 

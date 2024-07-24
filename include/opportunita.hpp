@@ -1,5 +1,6 @@
 #include "tessera.hpp"
 #include <iostream>
+#pragma once
 
 class Opportunita : public Tessera
 {
@@ -14,4 +15,6 @@ Opportunita(const std::vector<Opportunita>& cards);  //costrutture per il set di
 virtual  ~Opportunita();
  std::string getTipo() const override { return "Opportunita";}
 Opportunita pescaCarta(); 
+bool isBonus();
+int getImporto();
 };

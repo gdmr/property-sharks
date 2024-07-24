@@ -15,3 +15,10 @@ Inconvenienti Inconvenienti::pescaCarta(){
     setCarte.erase(setCarte.begin());
     return card;
 }
+
+int Inconvenienti::getImporto(){
+    return importo;
+}
+bool Inconvenienti::isPrigione(){
+    return prigione;
+}

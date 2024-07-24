@@ -15,7 +15,8 @@ std::vector<Giocatore> Gioco::getListaGiocatori(){
 }
 
   void Gioco::eseguiTurno(){
-    Giocatore &g1 = giocatori.back();
+    Giocatore& g1 = giocatori.back();
+    if(g1.getGiorniDiPrigione()<1){
     std::cout << "d per lanciare il dado, x per passare il turno senza lanciare il dado \n";
     char inserito;
     int result;
@@ -52,17 +53,40 @@ std::vector<Giocatore> Gioco::getListaGiocatori(){
         }}
     }
     else if (tipo == "Opportunita") {
-        std::cout << "Opportunità" << std::endl;
+        std::shared_ptr<Opportunita> opp = std::dynamic_pointer_cast<Opportunita>(casella);
+        if (opp) {  // Verifica che il cast sia andato a buon fine
+            std::cout << "Opportunità" << std::endl;
+            Opportunita o1=opp->pescaCarta();
+            std::cout <<o1.getTitolo() << "\n";
+            g1.opportunita(o1);
+        }
     } else if (tipo == "Inconvenienti") {
-        std::cout << "Inconvenienti" << std::endl;
+         std::shared_ptr<Inconvenienti> inco = std::dynamic_pointer_cast<Inconvenienti>(casella);
+        if (inco) {  // Verifica che il cast sia andato a buon fine
+            std::cout << "Inconveninti" << std::endl;
+            Inconvenienti i1=inco->pescaCarta();
+            std::cout <<i1.getTitolo() << "\n";
+            g1.inconveniente(i1);
+            
+        }
     }else if (tipo == "Prigione") {
-        std::cout << "Prigione" << std::endl;
+         std::shared_ptr<Prigione> prig = std::dynamic_pointer_cast<Prigione>(casella);
+        if (prig) {  // Verifica che il cast sia andato a buon fine
+            std::cout << "Prigione" << std::endl;
+            std::cout << prig->getTitolo() << "\n";
+            g1.vaiInPrigione();
+        }
     }  
     else {
         std::cout << "Caso non riconosciuto" << std::endl;
     }
   
     }
+
+    }else
+    std::cout << "Sei in prigione per questo turno" << std::endl;
+    g1.scontaGiornoDiPrigione();
+
 
 
 

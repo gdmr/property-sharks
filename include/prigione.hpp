@@ -1,5 +1,6 @@
 #include "tessera.hpp"
 #include "giocatore.hpp"
+#pragma once
 
 class Prigione : public Tessera
 {

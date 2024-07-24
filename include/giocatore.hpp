@@ -2,6 +2,8 @@
 #include <iostream>
 #include <vector>
 #include "proprieta.hpp"
+#include "inconvenienti.hpp"
+#include "opportunita.hpp"
 #pragma once
 
 class Giocatore
@@ -12,6 +14,7 @@ int saldo;
 std::vector<Proprieta> proprietaPossedute;
 int posizione;
 int turniDaSaltare;
+bool bonus;
 bool bot; 
 
 
@@ -28,5 +31,12 @@ public:
     std::vector<Proprieta> getProprietaPossedute();
     void vaiInPrigione();
     bool isBot();
+    void inconveniente(Inconvenienti inconveniente);
+    void opportunita(Opportunita opportunita);
+    void attivaBonus();
+    void disattivaBonus();
+    bool isBonusAttivo();
+    int getGiorniDiPrigione();
+    void scontaGiornoDiPrigione();
 };
 

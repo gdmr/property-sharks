@@ -15,3 +15,11 @@ Opportunita Opportunita::pescaCarta(){
     setCarte.erase(setCarte.begin());
     return card;
 }
+
+bool Opportunita::isBonus(){
+    return bonus;
+}
+
+int Opportunita::getImporto(){
+    return importo;
+}
