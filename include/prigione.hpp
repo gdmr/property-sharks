@@ -12,5 +12,5 @@ Prigione(std::string nome, int giorni);
 void setGIorniDiPrigione(int giorni);
 int getGIorniDiPrigione();
 void vaiInPrigione(Giocatore g1);
- std::string getTipo() const override { return "Prigiones";}
+ std::string getTipo() const override { return "Prigione";}
 };

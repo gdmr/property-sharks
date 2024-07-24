@@ -1,5 +1,7 @@
 #include "inconvenienti.hpp"
 
+Inconvenienti::Inconvenienti(const std::vector<Inconvenienti>& carte): setCarte(carte) {}
+
 Inconvenienti::Inconvenienti(std::string nome, int importo, bool prigione){
     setTitolo(nome);
     this->importo=importo;
@@ -7,3 +9,9 @@ Inconvenienti::Inconvenienti(std::string nome, int importo, bool prigione){
 }
 
 Inconvenienti::~Inconvenienti(){}
+
+Inconvenienti Inconvenienti::pescaCarta(){
+    Inconvenienti card = setCarte.front();
+    setCarte.erase(setCarte.begin());
+    return card;
+}

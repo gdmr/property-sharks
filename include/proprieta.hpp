@@ -14,7 +14,6 @@ private:
 
 public:
      Proprieta(std::string nome, int costoProprieta, int costoCasa, int costoAlbergo);
-    ~Proprieta();
     void aggiungiCasa();
     void costruisciAlbergo();
     int calcolaPagamento();
@@ -23,4 +22,5 @@ public:
     bool operator==(Proprieta other);
     bool operator==(std::string titolo);
     std::string getTipo() const override { return "Proprieta";}
+    virtual ~Proprieta();
 };

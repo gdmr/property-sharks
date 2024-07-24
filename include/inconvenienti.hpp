@@ -6,10 +6,16 @@ class Inconvenienti : public Tessera
 private:
     int importo;
     bool prigione;
+    std::vector<Inconvenienti> setCarte; 
     
 
 public:
- Inconvenienti(std::string nome, int importo, bool prigione);
+ Inconvenienti(const std::vector<Inconvenienti>& cards);  //costrutture per il set di carte
+ Inconvenienti(std::string nome, int importo, bool prigione); //costruttore singolo
  ~Inconvenienti();
  std::string getTipo() const override { return "Inconvenienti";}
+Inconvenienti pescaCarta(); 
 };
+
+
+

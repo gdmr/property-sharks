@@ -9,7 +9,6 @@ Gioco::Gioco(Giocatore g1){
 }
 Gioco::~Gioco(){}
 void Gioco::inizializza(){
-//tabellone.creaTabellone();
 }
 std::vector<Giocatore> Gioco::getListaGiocatori(){
     return giocatori;
@@ -27,8 +26,8 @@ std::vector<Giocatore> Gioco::getListaGiocatori(){
     g1.muoviGiocatore(result);
     std::shared_ptr<Tessera> casella = tabellone.getTessera(g1.getPosizione());
     std::string tipo=casella->getTipo();
-   if (tipo == "Propieta") {
-        std::cout << "Prorpietà" << std::endl;
+   if (tipo == "Proprieta") {
+        std::cout << "Proprietà" << std::endl;
         std::cout<<casella->getTitolo()<<"\n";
     } else if (tipo == "Opportunita") {
         std::cout << "Opportunità" << std::endl;
