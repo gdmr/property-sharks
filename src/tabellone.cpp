@@ -56,7 +56,7 @@ caselle.push_back(std::make_shared<Proprieta>("Via dei Castagni", 125, 24, 58));
 }
 
 std::shared_ptr<Tessera> Tabellone::getTessera(int posizione) {
-    if (posizione >= 0 && posizione < caselle.size()) {
+if (posizione >= 0 && posizione < static_cast<int>(caselle.size())) {
         return caselle[posizione];
     }
     return nullptr;

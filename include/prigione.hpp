@@ -8,7 +8,7 @@ int giorniDiPrigione;
 
 public:
 Prigione(std::string nome, int giorni);
-~Prigione();
+virtual ~Prigione();
 void setGIorniDiPrigione(int giorni);
 int getGIorniDiPrigione();
 void vaiInPrigione(Giocatore g1);
