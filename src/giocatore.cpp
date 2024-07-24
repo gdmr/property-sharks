@@ -15,7 +15,7 @@ void Giocatore::muoviGiocatore(int lancio){
     }
 }
 
-void Giocatore::acquistaProprieta(Proprieta proprieta){
+void Giocatore::acquistaProprieta(Proprieta& proprieta){
     proprieta.setProprietario(nome);
     saldo= saldo - proprieta.getCosto();
     proprietaPossedute.push_back(proprieta);

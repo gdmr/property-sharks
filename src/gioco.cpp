@@ -26,10 +26,32 @@ std::vector<Giocatore> Gioco::getListaGiocatori(){
     g1.muoviGiocatore(result);
     std::shared_ptr<Tessera> casella = tabellone.getTessera(g1.getPosizione());
     std::string tipo=casella->getTipo();
-   if (tipo == "Proprieta") {
+  if (tipo == "Proprieta") {
+    // Utilizza std::dynamic_pointer_cast per convertire il puntatore smart a Proprietà
+    std::shared_ptr<Proprieta> prop = std::dynamic_pointer_cast<Proprieta>(casella);
+    
+    if (prop) {  // Verifica che il cast sia andato a buon fine
         std::cout << "Proprietà" << std::endl;
-        std::cout<<casella->getTitolo()<<"\n";
-    } else if (tipo == "Opportunita") {
+        std::cout << prop->getTitolo() << "\n";
+
+        if (prop->getProprietario() == "banca") {
+            std::cout << "Questa proprietà appartiene alla banca, cosa vuoi fare?" << std::endl;
+            std::cout << "Costo proprieta: "<< prop->getCosto() << std::endl;
+            std::cout << "Tuo saldo: "<< g1.getSaldo() << std::endl;
+            char inserito;
+            std::cout << "a per acquistare, x per rifiutare" << std::endl;
+            std::cin >> inserito;
+
+            if (inserito == 'a') {
+                g1.acquistaProprieta(*prop);
+                std::cout << "proprietà acquistata" << std::endl;
+                std::cout << "proprietario " << prop->getProprietario()<<std::endl;
+                
+                std::cout << "Tuo saldo aggiornato: "<< g1.getSaldo() << std::endl;
+            }
+        }}
+    }
+    else if (tipo == "Opportunita") {
         std::cout << "Opportunità" << std::endl;
     } else if (tipo == "Inconvenienti") {
         std::cout << "Inconvenienti" << std::endl;
@@ -39,11 +61,7 @@ std::vector<Giocatore> Gioco::getListaGiocatori(){
     else {
         std::cout << "Caso non riconosciuto" << std::endl;
     }
-    //std::cout<<p1.getTitolo()<<"\n";
-    std::cout << "Cosa vuoi fare con questa proprietà? \n";
-    //codice da implementare
   
-    std::cout << "Posizione attuale: " <<g1.getPosizione() << "\n";
     }
 
 
