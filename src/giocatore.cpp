@@ -46,6 +46,10 @@ void Giocatore::pagaAffitto(Giocatore proprietario, int importo){
     modificaSaldo(-importo);
 }
 
+ std::string Giocatore::getNome(){
+    return nome;
+ }
+
 int Giocatore::getSaldo() const{
     return saldo;
 }

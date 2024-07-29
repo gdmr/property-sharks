@@ -27,6 +27,7 @@ public:
     void vendiProprieta(Proprieta proprieta, Giocatore acquirente);
     void pagaAffitto(Giocatore proprietario, int importo);
     int getSaldo() const;
+    std::string getNome();
     int getPosizione() const;
     std::vector<Proprieta> getProprietaPossedute();
     void vaiInPrigione();

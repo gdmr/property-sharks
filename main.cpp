@@ -1,9 +1,17 @@
-#include <iostream>
-#include <string>
-#include "giocatore.hpp"
-#include "gioco.hpp"
+#include <wx/wx.h>
+#include "MainFrame.hpp"
 
-int main(){
+class MyApp : public wxApp
+{
+public:
+    virtual bool OnInit();
+};
 
-return 0;
+wxIMPLEMENT_APP(MyApp);
+
+bool MyApp::OnInit()
+{
+    MainFrame* frame = new MainFrame("Property sharks");
+    frame->Show(true);
+    return true;
 }
