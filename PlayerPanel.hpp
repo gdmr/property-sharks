@@ -5,10 +5,10 @@
 
 wxDECLARE_EVENT(wxEVT_PLAYER_SUBMIT, wxCommandEvent);
 
-class PlayerPanel : public wxPanel
+class Playerpanel : public wxPanel
 {
 public:
-    PlayerPanel(wxWindow* parent);
+    Playerpanel(wxWindow* parent);
 
 private:
     void OnSubmit(wxCommandEvent& event);

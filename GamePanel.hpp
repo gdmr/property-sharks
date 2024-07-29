@@ -5,16 +5,18 @@
 #include <wx/panel.h>
 #include "giocatore.hpp"
 
-class GamePanel : public wxPanel
+class Gamepanel : public wxPanel
 {
 public:
-    GamePanel(wxWindow* parent, Giocatore* giocatore);
+    Gamepanel(wxWindow* parent, Giocatore* giocatore);
 
 private:
     void OnPaint(wxPaintEvent& event);
+    void onSubmit(wxCommandEvent& event);
     Giocatore* giocatore; 
 
     wxString playerName;
+    wxStaticText* saldo;
 
     wxDECLARE_EVENT_TABLE();
 };

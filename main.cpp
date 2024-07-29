@@ -1,5 +1,5 @@
 #include <wx/wx.h>
-#include "MainFrame.hpp"
+#include "mainframe.hpp"
 
 class MyApp : public wxApp
 {
@@ -11,7 +11,7 @@ wxIMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit()
 {
-    MainFrame* frame = new MainFrame("Property sharks");
+    Mainframe* frame = new Mainframe("Property sharks");
     frame->Show(true);
     return true;
 }

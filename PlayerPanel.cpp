@@ -1,13 +1,13 @@
-#include "PlayerPanel.hpp"
+#include "playerpanel.hpp"
 #include "giocatore.hpp"
 
 wxDEFINE_EVENT(wxEVT_PLAYER_SUBMIT, wxCommandEvent);
 
-wxBEGIN_EVENT_TABLE(PlayerPanel, wxPanel)
-    EVT_BUTTON(wxID_OK, PlayerPanel::OnSubmit)
+wxBEGIN_EVENT_TABLE(Playerpanel, wxPanel)
+    EVT_BUTTON(wxID_OK, Playerpanel::OnSubmit)
 wxEND_EVENT_TABLE()
 
-PlayerPanel::PlayerPanel(wxWindow* parent)
+Playerpanel::Playerpanel(wxWindow* parent)
     : wxPanel(parent, wxID_ANY), textCtrl(nullptr)
 {
     wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
@@ -24,7 +24,7 @@ PlayerPanel::PlayerPanel(wxWindow* parent)
     SetSizer(sizer);
 }
 
-void PlayerPanel::OnSubmit(wxCommandEvent& event)
+void Playerpanel::OnSubmit(wxCommandEvent& event)
 {
     wxString userInput = textCtrl->GetValue();
     std::cout << "User input: " << userInput.ToStdString() << std::endl;
