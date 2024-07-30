@@ -31,6 +31,7 @@ private:
     wxStaticText* saldo;
     wxStaticText* risultatolabel;
     wxStaticText* tesseraInformativa;
+    wxPanel* infoPanel;
     
     std::vector<std::pair<int, int>> boardPositions;
     std::vector<int> logicalToPhysical;

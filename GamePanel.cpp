@@ -43,7 +43,6 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore)
     int rows = 9;
     int cols = 9;
 
-
     for (int col = 0; col < cols; ++col) {
         boardPositions.push_back({0, col});
     }
@@ -100,11 +99,33 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
 
         dc.SetBrush(*wxRED_BRUSH);
         dc.DrawCircle(x + cellSize / 2, y + cellSize / 2, 20);
+
         std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
         if (tesseraCorrente) {
-            std::cout<<"tessera " << tesseraCorrente->getTitolo() << "\n";
-            std::cout<<"posizione " << giocatore->getPosizione() << "\n";
-            tesseraInformativa->SetLabel("Tessera corrente: " + tesseraCorrente->getTitolo());
+            std::cout << "tessera " << tesseraCorrente->getTitolo() << "\n";
+            std::cout << "posizione " << giocatore->getPosizione() << "\n";
+
+            Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
+            if (proprieta) {
+                int infoBoxWidth = 300;
+                int infoBoxHeight = 150;
+                int infoBoxX = this->GetClientSize().GetWidth() - infoBoxWidth - 10;
+                int infoBoxY = this->GetClientSize().GetHeight() - infoBoxHeight - 10;
+                wxColour darkGrey(169, 169, 169);
+                dc.SetBrush(wxBrush(darkGrey));
+                dc.DrawRectangle(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
+                wxString infoLabel = "Tessera corrente: " + tesseraCorrente->getTitolo();
+                infoLabel += "\nCosto: " + std::to_string(proprieta->getCosto());
+                infoLabel += "\nCosto Casa: " + std::to_string(proprieta->getCostoCasa());
+                infoLabel += "\nProprietario: " + proprieta->getProprietario();
+                infoLabel += "\nCase: " + std::to_string(proprieta->getNumeroCase());
+
+                dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
+
+                tesseraInformativa->SetLabel(infoLabel);
+            } else {
+                tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
+            }
         } else {
             tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
         }

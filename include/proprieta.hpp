@@ -19,6 +19,7 @@ public:
     int calcolaPagamento();
     int getNumeroCase();
     int getCosto();
+    int getCostoCasa();
     bool operator==(Proprieta other);
     bool operator==(std::string titolo);
     std::string getTipo() const override { return "Proprieta";}
