@@ -4,7 +4,7 @@
 
 wxBEGIN_EVENT_TABLE(Gamepanel, wxPanel)
     EVT_PAINT(Gamepanel::OnPaint)
-    EVT_BUTTON(ID_COMPRABUTTON, Gamepanel::onSubmit)
+    EVT_BUTTON(ID_COMPRABUTTON, Gamepanel::compraProprieta)
     EVT_BUTTON(ID_LANCIADADOBUTTON, Gamepanel::lanciaDado)
 wxEND_EVENT_TABLE()
 
@@ -132,19 +132,36 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
     }
 }
 
-void Gamepanel::onSubmit(wxCommandEvent& event)
+void Gamepanel::compraProprieta(wxCommandEvent& event)
 {
-    giocatore->modificaSaldo(100);
+    std::shared_ptr tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
+    Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
+    if (proprieta) {
+        if (proprieta->getProprietario() == giocatore->getNome()) {
+            wxMessageBox("Sei già il proprietario di questa proprietà", "Attento", wxOK | wxICON_ERROR);
+            return;
+        }
+        if (giocatore->getSaldo() < proprieta->getCosto()) {
+            wxMessageBox("Il tuo saldo non è sufficiente per acquistare la proprietà", "Mi dispiace", wxOK | wxICON_ERROR);
+            return;
+        }
+    giocatore->acquistaProprieta(*proprieta);
     saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
-    this->Layout();
+    Refresh();}
 }
 
 void Gamepanel::lanciaDado(wxCommandEvent& event)
 {
     int risultato = dado->lanciaDadi();
     risultatolabel->SetLabel("esito lancio: " + std::to_string(risultato));
-    
+    int posizionePrecedente = giocatore->getPosizione();
     giocatore->muoviGiocatore(risultato);
+    currentPlayerPosition = giocatore->getPosizione();
+    if (currentPlayerPosition < posizionePrecedente) {
+        giocatore->modificaSaldo(100);
+        wxMessageBox("Hai passato lo start! Bonus di 100 denti squalo");
+        saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
+    }
     currentPlayerPosition = giocatore->getPosizione();
     Refresh();
 }

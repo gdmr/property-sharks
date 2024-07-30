@@ -11,7 +11,8 @@
 enum
 {
     ID_COMPRABUTTON = 1,
-    ID_LANCIADADOBUTTON = 2
+    ID_LANCIADADOBUTTON = 2,
+    ID_COMPRACASABUTTON = 3
 };
 
 class Gamepanel : public wxPanel
@@ -21,8 +22,9 @@ public:
 
 private:
     void OnPaint(wxPaintEvent& event);
-    void onSubmit(wxCommandEvent& event);
+    void compraProprieta(wxCommandEvent& event);
     void lanciaDado(wxCommandEvent& event);
+    void compraCasa(wxCommandEvent& event);
 
     Giocatore* giocatore;
     std::unique_ptr<Tabellone> tabellone;
@@ -32,6 +34,9 @@ private:
     wxStaticText* risultatolabel;
     wxStaticText* tesseraInformativa;
     wxPanel* infoPanel;
+    wxButton* buttonCompra;
+    wxButton* buttonLanciaDado;
+    wxButton* buttonCompraCasa;
     
     std::vector<std::pair<int, int>> boardPositions;
     std::vector<int> logicalToPhysical;
