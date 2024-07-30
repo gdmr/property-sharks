@@ -20,6 +20,7 @@ public:
     std::shared_ptr<Tessera> getTessera(int posizione);
     Inconvenienti getInconveniente();
     Opportunita getOpportunita();
+    std::vector<std::shared_ptr<Tessera>> getCaselle();
 };
 
 

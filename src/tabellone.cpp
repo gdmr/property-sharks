@@ -52,6 +52,8 @@ caselle.push_back(std::make_shared<Proprieta>("Via del Campo", 105, 20, 50));
 caselle.push_back(std::make_shared<Proprieta>("Largo Augusto", 180, 28, 65));
 caselle.push_back(std::make_shared<Proprieta>("Viale della Libertà", 195, 31, 72));
 caselle.push_back(std::make_shared<Proprieta>("Via dei Castagni", 125, 24, 58));
+caselle.push_back(std::make_shared<Proprieta>("Via lunario", 195, 31, 72));
+caselle.push_back(std::make_shared<Proprieta>("Corso alberti", 125, 24, 58));
  
 }
 
@@ -62,4 +64,6 @@ if (posizione >= 0 && posizione < static_cast<int>(caselle.size())) {
     return nullptr;
 }
 
-
+std::vector<std::shared_ptr<Tessera>> Tabellone::getCaselle(){
+    return caselle;
+}

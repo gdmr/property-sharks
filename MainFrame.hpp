@@ -7,6 +7,7 @@
 #include "gamepanel.hpp"
 #include "giocatore.hpp"
 
+
 class Mainframe : public wxFrame
 {
 public:

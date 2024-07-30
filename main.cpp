@@ -11,6 +11,7 @@ wxIMPLEMENT_APP(MyApp);
 
 bool MyApp::OnInit()
 {
+    wxInitAllImageHandlers();
     Mainframe* frame = new Mainframe("Property sharks");
     frame->Show(true);
     return true;
