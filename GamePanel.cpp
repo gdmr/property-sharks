@@ -20,11 +20,15 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore)
     risultatolabel = new wxStaticText(this, wxID_ANY, "0" + std::to_string(dado->lanciaDadi()));
     wxButton* button = new wxButton(this, ID_COMPRABUTTON, "Compra");
     wxButton* lanciaDado = new wxButton(this, ID_LANCIADADOBUTTON, "Lancia i dadi");
+    
+    tesseraInformativa = new wxStaticText(this, wxID_ANY, "Tessera corrente: Nessuna");
+
     textSizer->Add(button, 0, wxALL | wxALIGN_CENTER, 5);
     textSizer->Add(lanciaDado, 0, wxALL | wxALIGN_CENTER, 5);
     textSizer->Add(nome, 0, wxALL, 5);
     textSizer->Add(saldo, 0, wxALL, 5);
     textSizer->Add(risultatolabel, 0, wxALL, 5);
+    textSizer->Add(tesseraInformativa, 0, wxALL, 5);
 
     rightAlignedSizer->AddStretchSpacer();
     rightAlignedSizer->Add(textSizer, 0, wxALL, 5);
@@ -35,10 +39,10 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore)
 
     this->Layout();
 
-
-    int cellSize = 110;
+    int cellSize = 115;
     int rows = 9;
     int cols = 9;
+
 
     for (int col = 0; col < cols; ++col) {
         boardPositions.push_back({0, col});
@@ -67,32 +71,26 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
     int index = 0;
     wxBrush currentBrush = *wxBLUE_BRUSH;
 
-    for (int row = 0; row < rows; ++row)
+    for (const auto& pos : boardPositions)
     {
-        for (int col = 0; col < cols; ++col)
-        {
-            if (row == 0 || row == rows - 1 || col == 0 || col == cols - 1)
-            {
-                if (index >= 32) {
-                    break;
-                }
-
-                int x = col * cellSize;
-                int y = row * cellSize;
-                dc.DrawRectangle(x, y, cellSize, cellSize);
-
-                wxString label = wxString::Format("R%dC%d", row, col);
-                std::shared_ptr<Tessera> c = tabellone->getTessera(index);
-                std::cout << "num: " << index << " " << c->getTitolo() << "\n";
-
-                if (c) {
-                    label = c->getTitolo();
-                    dc.DrawText(label, x + 10, y + 10);
-                }
-
-                index++;
-            }
+        if (index >= 32) {
+            break;
         }
+
+        int x = pos.second * cellSize;
+        int y = pos.first * cellSize;
+        dc.DrawRectangle(x, y, cellSize, cellSize);
+
+        wxString label = wxString::Format("R%dC%d", pos.first, pos.second);
+        std::shared_ptr<Tessera> c = tabellone->getTessera(index);
+        std::cout << "num: " << index << " " << c->getTitolo() << "\n";
+
+        if (c) {
+            label = c->getTitolo();
+            dc.DrawText(label, x + 10, y + 10);
+        }
+
+        index++;
     }
 
     if (currentPlayerPosition < boardPositions.size()) {
@@ -100,9 +98,16 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
         int x = pos.second * cellSize;
         int y = pos.first * cellSize;
 
-        // Pedina
         dc.SetBrush(*wxRED_BRUSH);
         dc.DrawCircle(x + cellSize / 2, y + cellSize / 2, 20);
+        std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
+        if (tesseraCorrente) {
+            std::cout<<"tessera " << tesseraCorrente->getTitolo() << "\n";
+            std::cout<<"posizione " << giocatore->getPosizione() << "\n";
+            tesseraInformativa->SetLabel("Tessera corrente: " + tesseraCorrente->getTitolo());
+        } else {
+            tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
+        }
     }
 }
 

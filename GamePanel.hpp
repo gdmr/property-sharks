@@ -23,21 +23,19 @@ private:
     void OnPaint(wxPaintEvent& event);
     void onSubmit(wxCommandEvent& event);
     void lanciaDado(wxCommandEvent& event);
-    std::pair<int, int> GetPositionForIndex(int index) const;
 
-    wxStaticText* saldo;
-    wxStaticText* risultatolabel;
     Giocatore* giocatore;
     std::unique_ptr<Tabellone> tabellone;
     std::unique_ptr<Dado> dado;
-
     int currentPlayerPosition;
+    wxStaticText* saldo;
+    wxStaticText* risultatolabel;
+    wxStaticText* tesseraInformativa;
+    
     std::vector<std::pair<int, int>> boardPositions;
+    std::vector<int> logicalToPhysical;
 
     wxDECLARE_EVENT_TABLE();
 };
-
-
-
 
 #endif // GAMEPANEL_HPP
