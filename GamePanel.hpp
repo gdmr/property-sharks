@@ -26,6 +26,7 @@ private:
     void lanciaDado(wxCommandEvent& event);
     void compraCasa(wxCommandEvent& event);
     void compraAlbergo(wxCommandEvent& event);
+    void checkGameOver();
 
     Giocatore* giocatore;
     std::unique_ptr<Tabellone> tabellone;
@@ -34,7 +35,7 @@ private:
     wxStaticText* saldo;
     wxStaticText* risultatolabel;
     wxStaticText* tesseraInformativa;
-    wxStaticText* gameOverMessage;
+    wxStaticBitmap* gameOverImage;
     wxPanel* infoPanel;
     wxButton* buttonCompra;
     wxButton* buttonLanciaDado;

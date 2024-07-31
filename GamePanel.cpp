@@ -24,6 +24,9 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore)
     buttonCompraCasa = new wxButton(this, ID_COMPRACASABUTTON, "Compra casa");
     
     tesseraInformativa = new wxStaticText(this, wxID_ANY, "Tessera corrente: Nessuna");
+    wxBitmap gameOverBitmap(wxT("img/gameover.png"), wxBITMAP_TYPE_PNG);
+    gameOverImage = new wxStaticBitmap(this, wxID_ANY, gameOverBitmap);
+    gameOverImage->Hide();
     textSizer->Add(button, 0, wxALL | wxALIGN_CENTER, 5);
     textSizer->Add(lanciaDado, 0, wxALL | wxALIGN_CENTER, 5);
     textSizer->Add(buttonCompraCasa, 0, wxALL | wxALIGN_CENTER, 5);
@@ -36,6 +39,7 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore)
     rightAlignedSizer->Add(textSizer, 0, wxALL, 5);
 
     mainSizer->Add(rightAlignedSizer, 0, wxEXPAND | wxALL, 10);
+    mainSizer->Add(gameOverImage, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
 
     this->SetSizer(mainSizer);
 
@@ -65,6 +69,10 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
     wxColour acquaGreen(127, 255, 212);
     dc.SetBrush(wxBrush(acquaGreen));
     dc.SetPen(*wxBLACK_PEN);
+
+    if (giocatore->getSaldo() < 0) {
+        return;
+    }
 
     int cellSize = 110;
     int rows = 9;
@@ -187,10 +195,29 @@ void Gamepanel::lanciaDado(wxCommandEvent& event)
     giocatore->muoviGiocatore(risultato);
     currentPlayerPosition = giocatore->getPosizione();
     if (currentPlayerPosition < posizionePrecedente) {
-        giocatore->modificaSaldo(100);
+        giocatore->modificaSaldo(-1000);
         wxMessageBox("Hai passato lo start! Bonus di 100 denti squalo");
         saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
+        checkGameOver(); 
     }
     currentPlayerPosition = giocatore->getPosizione();
     Refresh();
+}
+
+void Gamepanel::checkGameOver()
+{
+    if (giocatore->getSaldo() < 0)
+    {
+        saldo->Hide();
+        risultatolabel->Hide();
+        tesseraInformativa->Hide();
+        FindWindowById(ID_COMPRABUTTON)->Hide();
+        FindWindowById(ID_LANCIADADOBUTTON)->Hide();
+        FindWindowById(ID_COMPRACASABUTTON)->Hide();
+        gameOverImage->Show();
+
+        
+        this->Layout();
+        Refresh();
+    }
 }
