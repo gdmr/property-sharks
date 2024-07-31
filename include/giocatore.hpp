@@ -24,6 +24,7 @@ public:
     void modificaSaldo(int soldi);
     void muoviGiocatore(int lancio); 
     void acquistaProprieta(Proprieta& proprieta);
+    int acquistaCasa(Proprieta& proprieta);
     void vendiProprieta(Proprieta proprieta, Giocatore acquirente);
     void pagaAffitto(Giocatore proprietario, int importo);
     int getSaldo() const;

@@ -22,6 +22,24 @@ void Giocatore::acquistaProprieta(Proprieta& proprieta){
     
 }
 
+int Giocatore::acquistaCasa(Proprieta& proprieta) {
+    if (proprieta.getProprietario().compare(getNome()) == 0) {
+        if (getSaldo() > proprieta.getCostoCasa()) {
+            if (proprieta.getNumeroCase() < 4) {
+                modificaSaldo(-proprieta.getCostoCasa());
+                proprieta.aggiungiCasa();
+                return 0;
+            } else {
+                return 1; // Numero massimo di case raggiunto
+            }
+        } else {
+            return 2; // Saldo insufficiente
+        }
+    } else {
+        return 3; // Proprietario non corrisponde
+    }
+}
+
 void Giocatore::vendiProprieta(Proprieta proprieta, Giocatore acquirente){
     std::string rimuovi=proprieta.getTitolo();
     //for (int i = 0; i < proprietaPossedute.size(); i++)

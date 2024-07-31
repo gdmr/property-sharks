@@ -25,6 +25,7 @@ private:
     void compraProprieta(wxCommandEvent& event);
     void lanciaDado(wxCommandEvent& event);
     void compraCasa(wxCommandEvent& event);
+    void compraAlbergo(wxCommandEvent& event);
 
     Giocatore* giocatore;
     std::unique_ptr<Tabellone> tabellone;
@@ -33,10 +34,12 @@ private:
     wxStaticText* saldo;
     wxStaticText* risultatolabel;
     wxStaticText* tesseraInformativa;
+    wxStaticText* gameOverMessage;
     wxPanel* infoPanel;
     wxButton* buttonCompra;
     wxButton* buttonLanciaDado;
     wxButton* buttonCompraCasa;
+    wxButton* buttonCompraAlbergo;
     
     std::vector<std::pair<int, int>> boardPositions;
     std::vector<int> logicalToPhysical;

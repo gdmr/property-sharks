@@ -6,6 +6,7 @@ wxBEGIN_EVENT_TABLE(Gamepanel, wxPanel)
     EVT_PAINT(Gamepanel::OnPaint)
     EVT_BUTTON(ID_COMPRABUTTON, Gamepanel::compraProprieta)
     EVT_BUTTON(ID_LANCIADADOBUTTON, Gamepanel::lanciaDado)
+    EVT_BUTTON(ID_COMPRACASABUTTON, Gamepanel::compraCasa)
 wxEND_EVENT_TABLE()
 
 Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore) 
@@ -20,11 +21,12 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore)
     risultatolabel = new wxStaticText(this, wxID_ANY, "0" + std::to_string(dado->lanciaDadi()));
     wxButton* button = new wxButton(this, ID_COMPRABUTTON, "Compra");
     wxButton* lanciaDado = new wxButton(this, ID_LANCIADADOBUTTON, "Lancia i dadi");
+    buttonCompraCasa = new wxButton(this, ID_COMPRACASABUTTON, "Compra casa");
     
     tesseraInformativa = new wxStaticText(this, wxID_ANY, "Tessera corrente: Nessuna");
-
     textSizer->Add(button, 0, wxALL | wxALIGN_CENTER, 5);
     textSizer->Add(lanciaDado, 0, wxALL | wxALIGN_CENTER, 5);
+    textSizer->Add(buttonCompraCasa, 0, wxALL | wxALIGN_CENTER, 5);
     textSizer->Add(nome, 0, wxALL, 5);
     textSizer->Add(saldo, 0, wxALL, 5);
     textSizer->Add(risultatolabel, 0, wxALL, 5);
@@ -123,6 +125,11 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
                 dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
 
                 tesseraInformativa->SetLabel(infoLabel);
+                if (tesseraCorrente->getTitolo() == "opportunita" || tesseraCorrente->getTitolo() == "imprevisti" || tesseraCorrente->getTitolo() == "prigione" ) {
+                // Azione specifica per la tessera prigione
+                wxMessageBox("Sei finito in prigione!", "Avviso", wxOK | wxICON_INFORMATION);
+        
+            }
             } else {
                 tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
             }
@@ -148,6 +155,28 @@ void Gamepanel::compraProprieta(wxCommandEvent& event)
     giocatore->acquistaProprieta(*proprieta);
     saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
     Refresh();}
+}
+
+void Gamepanel::compraCasa(wxCommandEvent& event){
+    std::shared_ptr tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
+    Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
+    if (proprieta) {
+    switch (giocatore->acquistaCasa(*proprieta))
+    {
+    case 0:
+        wxMessageBox("Casa acquistata", "Complimenti", wxOK | wxICON_INFORMATION);
+        break;
+     case 1:
+        wxMessageBox("Numero massimo di case raggiunto", "Attento", wxOK | wxICON_ERROR);
+        break;
+     case 2:
+        wxMessageBox("Saldo insufficiente", "Attento", wxOK | wxICON_ERROR);
+        break;
+     case 3:
+        wxMessageBox("Proprietario non corrisponde", "Attento", wxOK | wxICON_ERROR);
+        break;
+    }
+    }
 }
 
 void Gamepanel::lanciaDado(wxCommandEvent& event)
