@@ -1,6 +1,7 @@
 #include "gamepanel.hpp"
 #include <wx/dcclient.h>
 #include <wx/log.h>
+#include <wx/dcbuffer.h>  
 
 wxBEGIN_EVENT_TABLE(Gamepanel, wxPanel)
     EVT_PAINT(Gamepanel::OnPaint)
@@ -40,12 +41,60 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, wxBitmap selectedPa
     gameOverImage = new wxStaticBitmap(this, wxID_ANY, gameOverBitmap);
     gameOverImage->Hide();
     
+    // Set button colors and styles
+    wxColour buttonColor(0x1E, 0x90, 0xFF);
+    wxColour buttonTextColor(0xFF, 0xFF, 0xFF);
+    wxColour buttonHoverColor(0x00, 0x7A, 0xCC);
+    wxColour buttonBorderColor(0x00, 0x54, 0x89);
+    
+    auto setButtonStyle = [&](wxButton* btn) {
+        btn->SetBackgroundColour(buttonColor);
+        btn->SetForegroundColour(buttonTextColor);
+        btn->SetWindowStyleFlag(wxBORDER_NONE);
+        btn->SetBackgroundStyle(wxBG_STYLE_PAINT);
+        
+        btn->Bind(wxEVT_PAINT, [=](wxPaintEvent& event) {
+            wxAutoBufferedPaintDC dc(btn);
+            wxRect rect = btn->GetClientRect();
+            
+            dc.SetPen(wxPen(buttonBorderColor, 2));
+            dc.SetBrush(wxBrush(buttonColor));
+            dc.DrawRoundedRectangle(rect, 10);
+            
+            dc.SetTextForeground(buttonTextColor);
+            dc.DrawLabel(btn->GetLabel(), rect, wxALIGN_CENTER);
+        });
+        
+        btn->Bind(wxEVT_ENTER_WINDOW, [=](wxMouseEvent& event) {
+            btn->SetBackgroundColour(buttonHoverColor);
+            btn->Refresh();
+        });
+        
+        btn->Bind(wxEVT_LEAVE_WINDOW, [=](wxMouseEvent& event) {
+            btn->SetBackgroundColour(buttonColor);
+            btn->Refresh();
+        });
+    };
+    
+    setButtonStyle(button);
+    setButtonStyle(lanciaDado);
+    setButtonStyle(buttonCompraCasa);
+    setButtonStyle(closeButton);
+
     buttonSizer->Add(button, 0, wxALL | wxALIGN_CENTER, 5);
     buttonSizer->Add(lanciaDado, 0, wxALL | wxALIGN_CENTER, 5);
     buttonSizer->Add(buttonCompraCasa, 0, wxALL | wxALIGN_CENTER, 5);
     buttonSizer->Add(closeButton, 0, wxALL | wxALIGN_CENTER, 5);
     
     centerSizer->Add(buttonSizer, 0, wxALL | wxALIGN_CENTER, 5);
+    
+    // Set central text color
+    wxColour centralTextColor(0x00, 0x00, 0x00);
+    nome->SetForegroundColour(centralTextColor);
+    saldo->SetForegroundColour(centralTextColor);
+    risultatolabel->SetForegroundColour(centralTextColor);
+    tesseraInformativa->SetForegroundColour(centralTextColor);
+
     centerSizer->Add(nome, 0, wxALL | wxALIGN_CENTER, 5);
     centerSizer->Add(saldo, 0, wxALL | wxALIGN_CENTER, 5);
     centerSizer->Add(risultatolabel, 0, wxALL | wxALIGN_CENTER, 5);
@@ -81,9 +130,18 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, wxBitmap selectedPa
 void Gamepanel::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
-    wxColour acquaGreen(127, 255, 212);
-    dc.SetBrush(wxBrush(acquaGreen));
-    dc.SetPen(*wxBLACK_PEN);
+    wxColour boardBackground(0xF2, 0xF2, 0xF2);
+    wxColour tileBorder(0x33, 0x33, 0x33);
+    wxColour normalTile(0xAD, 0xD8, 0xE6);
+    wxColour opportunitaTile(0xFF, 0xD7, 0x00);
+    wxColour inconvenientiTile(0xFF, 0x63, 0x47);
+    wxColour prigioneTile(0xDD, 0xA0, 0xDD);
+    wxColour infoBackground(0xA9, 0xA9, 0xA9);
+    wxColour infoText(0x00, 0x00, 0x00);
+    wxColour infoBoxBackground(0xFF, 0xFF, 0xFF);
+    
+    dc.SetBackground(wxBrush(boardBackground));
+    dc.Clear();
 
     if (giocatore->getSaldo() < 0) {
         return;
@@ -95,7 +153,8 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
     int cellWidth = clientSize.GetWidth() / cols;
     int cellHeight = clientSize.GetHeight() / rows;
     int index = 0;
-    wxBrush currentBrush = *wxBLUE_BRUSH;
+
+    dc.SetPen(wxPen(tileBorder));
 
     for (const auto& pos : boardPositions)
     {
@@ -105,17 +164,32 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
 
         int x = pos.second * cellWidth;
         int y = pos.first * cellHeight;
+
+        std::shared_ptr<Tessera> c = tabellone->getTessera(index);
+        if (c) {
+            if (c->getTipo() == "Proprieta") {
+                dc.SetBrush(wxBrush(normalTile));
+            } else if (c->getTipo() == "opportunita") {
+                dc.SetBrush(wxBrush(opportunitaTile));
+            } else if (c->getTipo() == "inconvenienti") {
+                dc.SetBrush(wxBrush(inconvenientiTile));
+            } else if (c->getTipo() == "prigione") {
+                dc.SetBrush(wxBrush(prigioneTile));
+            }
+        } else {
+            dc.SetBrush(wxBrush(normalTile));
+        }
+
         dc.DrawRectangle(x, y, cellWidth, cellHeight);
 
+        dc.SetTextForeground(infoText);
         wxString label = wxString::Format("R%dC%d", pos.first, pos.second);
-        std::shared_ptr<Tessera> c = tabellone->getTessera(index);
-
         if (c) {
             label = c->getTitolo();
             if (index == 4) {
                 label = "Opportunita";
             }
-            if (index == 19) {
+            if (index == 20) {
                 label = "Inconvenienti";
             }
             dc.DrawText(label, x + 10, y + 10);
@@ -128,20 +202,20 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
         auto pos = boardPositions[currentPlayerPosition];
         int x = pos.second * cellWidth;
         int y = pos.first * cellHeight;
-        //dc.DrawRectangle(x, y, cellWidth, cellHeight);
 
         dc.DrawBitmap(playerPawn, x + cellWidth / 2 - playerPawn.GetWidth() / 2, y + cellHeight / 2 - playerPawn.GetHeight() / 2, true);
 
         std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
         if (tesseraCorrente) {
-             int infoBoxWidth = 300;
-            int infoBoxHeight = 150;
-            int infoBoxX = this->GetClientSize().GetWidth() - infoBoxWidth - 200;
-            int infoBoxY = this->GetClientSize().GetHeight() - infoBoxHeight - 100;
-            wxColour darkGrey(169, 169, 169);
-            dc.SetBrush(wxBrush(darkGrey));
+            int infoBoxWidth = clientSize.GetWidth() * 0.3;
+            int infoBoxHeight = clientSize.GetHeight() * 0.2;
+            int infoBoxX = clientSize.GetWidth() - infoBoxWidth - 200;
+            int infoBoxY = clientSize.GetHeight() - infoBoxHeight - 200;
+
+            dc.SetBrush(wxBrush(infoBoxBackground));
             dc.DrawRectangle(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
 
+            dc.SetTextForeground(infoText);
             wxString infoLabel = "Tessera corrente: " + tesseraCorrente->getTitolo();
 
             if (tesseraCorrente->getTipo() == "Proprieta") {
