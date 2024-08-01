@@ -19,10 +19,14 @@ Mainframe::Mainframe(const wxString& title)
 void Mainframe::OnPlayerSubmit(wxCommandEvent& event)
 {
     wxString playerName = event.GetString();
-    ShowGamePanel(playerName);
+    int pawnIndex = event.GetInt();
+    ShowGamePanel(playerName, pawnIndex);
 }
 
-void Mainframe::ShowGamePanel(const wxString& playerName)
+
+
+
+void Mainframe::ShowGamePanel(const wxString& playerName, int pawnIndex)
 {
     if (playerPanel)
     {
@@ -31,12 +35,28 @@ void Mainframe::ShowGamePanel(const wxString& playerName)
         playerPanel->Destroy();
         playerPanel = nullptr;
     }
+
+    // Carica la pedina selezionata in base all'indice
+    wxBitmap selectedPawn;
+    switch (pawnIndex) {
+        case 0:
+            selectedPawn.LoadFile("pedine/s1.png", wxBITMAP_TYPE_PNG);
+            break;
+        case 1:
+            selectedPawn.LoadFile("pedine/s2.png", wxBITMAP_TYPE_PNG);
+            break;
+        case 2:
+            selectedPawn.LoadFile("pedine/s3.png", wxBITMAP_TYPE_PNG);
+            break;
+        default:
+            wxLogError("Indice della pedina non valido");
+            return;
+    }
+
     giocatore = new Giocatore(playerName.ToStdString(), 1000, false);
-    gamePanel = new Gamepanel(this, giocatore);  
+    gamePanel = new Gamepanel(this, giocatore, selectedPawn);  
     GetSizer()->Add(gamePanel, 1, wxEXPAND);
     Layout();
-    
-   
 }
 
 void Mainframe::MaximizeWithoutFullScreen()

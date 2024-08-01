@@ -61,11 +61,9 @@ Playerpanel::Playerpanel(wxWindow* parent)
 void Playerpanel::OnSubmit(wxCommandEvent& event)
 {
     wxString userInput = textCtrl->GetValue();
-    wxString selectedPawn = wxString::Format("Pedina %d", currentPawnIndex + 1); // Indice della pedina
-    std::cout << "User input: " << userInput.ToStdString() << ", Pedina scelta: " << selectedPawn.ToStdString() << std::endl;
-
     wxCommandEvent submitEvent(wxEVT_PLAYER_SUBMIT);
-    submitEvent.SetString(userInput + " - " + selectedPawn);
+    submitEvent.SetString(userInput);
+    submitEvent.SetInt(currentPawnIndex);
     wxPostEvent(GetParent(), submitEvent);
 }
 

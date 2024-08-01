@@ -15,7 +15,7 @@ public:
 
 private:
     void OnPlayerSubmit(wxCommandEvent& event);
-    void ShowGamePanel(const wxString& playerName);
+    void ShowGamePanel(const wxString& playerName, int pawnIndex);
     void MaximizeWithoutFullScreen();
 
     Playerpanel* playerPanel;

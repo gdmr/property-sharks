@@ -19,7 +19,7 @@ enum
 class Gamepanel : public wxPanel
 {
 public:
-    Gamepanel(wxWindow* parent, Giocatore* giocatore);
+    Gamepanel(wxWindow* parent, Giocatore* giocatore, wxBitmap selectedPawn);
 
 private:
     void OnPaint(wxPaintEvent& event);
@@ -31,12 +31,14 @@ private:
     void onClose(wxCommandEvent& event);
     void ShowPlayerPanel();
     void ShowPendingMessage();
+    void OnPlayerSubmit(wxCommandEvent& event);
 
 
     Giocatore* giocatore;
     std::unique_ptr<Tabellone> tabellone;
     std::unique_ptr<Dado> dado;
     int currentPlayerPosition;
+    wxBitmap playerPawn;
     wxStaticText* saldo;
     wxStaticText* risultatolabel;
     wxStaticText* tesseraInformativa;

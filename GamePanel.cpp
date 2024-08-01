@@ -10,16 +10,25 @@ wxBEGIN_EVENT_TABLE(Gamepanel, wxPanel)
     EVT_BUTTON(ID_CLOSEBUTTON, Gamepanel::onClose)
 wxEND_EVENT_TABLE()
 
-Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore) 
-    : wxPanel(parent, wxID_ANY), giocatore(giocatore), tabellone(new Tabellone()), dado(new Dado()), currentPlayerPosition(0)
+
+Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, wxBitmap selectedPawn) 
+    : wxPanel(parent, wxID_ANY), giocatore(giocatore), tabellone(new Tabellone()), dado(new Dado()), currentPlayerPosition(0), playerPawn(selectedPawn)
 {
+    wxImage pawnImage = selectedPawn.ConvertToImage();
+    int newWidth = 70;
+    int newHeight = 70;
+    pawnImage.Rescale(newWidth, newHeight);
+    playerPawn = wxBitmap(pawnImage);
     tabellone->creaTabellone();
+    
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-    wxBoxSizer* rightAlignedSizer = new wxBoxSizer(wxHORIZONTAL);
-    wxBoxSizer* textSizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* centerSizer = new wxBoxSizer(wxVERTICAL);
+    wxBoxSizer* buttonSizer = new wxBoxSizer(wxVERTICAL);
+    
     wxStaticText* nome = new wxStaticText(this, wxID_ANY, "nome giocatore: " + giocatore->getNome());
     saldo = new wxStaticText(this, wxID_ANY, "saldo giocatore: " + std::to_string(giocatore->getSaldo()));
     risultatolabel = new wxStaticText(this, wxID_ANY, "0" + std::to_string(dado->lanciaDadi()));
+    
     wxButton* button = new wxButton(this, ID_COMPRABUTTON, "Compra");
     wxButton* lanciaDado = new wxButton(this, ID_LANCIADADOBUTTON, "Lancia i dadi");
     closeButton = new wxButton(this, ID_CLOSEBUTTON, "Chiudi");
@@ -30,25 +39,26 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore)
     wxBitmap gameOverBitmap(wxT("img/gameover.png"), wxBITMAP_TYPE_PNG);
     gameOverImage = new wxStaticBitmap(this, wxID_ANY, gameOverBitmap);
     gameOverImage->Hide();
-    textSizer->Add(button, 0, wxALL | wxALIGN_CENTER, 5);
-    textSizer->Add(lanciaDado, 0, wxALL | wxALIGN_CENTER, 5);
-    textSizer->Add(buttonCompraCasa, 0, wxALL | wxALIGN_CENTER, 5);
-    textSizer->Add(closeButton, 0, wxALL | wxALIGN_CENTER, 5);
-    textSizer->Add(nome, 0, wxALL, 5);
-    textSizer->Add(saldo, 0, wxALL, 5);
-    textSizer->Add(risultatolabel, 0, wxALL, 5);
-    textSizer->Add(tesseraInformativa, 0, wxALL, 5);
-
-    rightAlignedSizer->AddStretchSpacer();
-    rightAlignedSizer->Add(textSizer, 0, wxALL, 5);
-
-    mainSizer->Add(rightAlignedSizer, 0, wxEXPAND | wxALL, 10);
+    
+    buttonSizer->Add(button, 0, wxALL | wxALIGN_CENTER, 5);
+    buttonSizer->Add(lanciaDado, 0, wxALL | wxALIGN_CENTER, 5);
+    buttonSizer->Add(buttonCompraCasa, 0, wxALL | wxALIGN_CENTER, 5);
+    buttonSizer->Add(closeButton, 0, wxALL | wxALIGN_CENTER, 5);
+    
+    centerSizer->Add(buttonSizer, 0, wxALL | wxALIGN_CENTER, 5);
+    centerSizer->Add(nome, 0, wxALL | wxALIGN_CENTER, 5);
+    centerSizer->Add(saldo, 0, wxALL | wxALIGN_CENTER, 5);
+    centerSizer->Add(risultatolabel, 0, wxALL | wxALIGN_CENTER, 5);
+    centerSizer->Add(tesseraInformativa, 0, wxALL | wxALIGN_CENTER, 5);
+    
+    mainSizer->AddStretchSpacer();
+    mainSizer->Add(centerSizer, 0, wxALL | wxALIGN_CENTER, 5);
+    mainSizer->AddStretchSpacer();
     mainSizer->Add(gameOverImage, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
-
+    
     this->SetSizer(mainSizer);
-
     this->Layout();
-
+    
     int cellSize = 115;
     int rows = 9;
     int cols = 9;
@@ -67,6 +77,7 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore)
     }
 }
 
+
 void Gamepanel::OnPaint(wxPaintEvent& event)
 {
     wxPaintDC dc(this);
@@ -78,10 +89,11 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
         return;
     }
 
-    int cellWidth = 150;
-    int cellHeight = 110; 
+    wxSize clientSize = this->GetClientSize();
     int rows = 9;
     int cols = 9;
+    int cellWidth = clientSize.GetWidth() / cols;
+    int cellHeight = clientSize.GetHeight() / rows;
     int index = 0;
     wxBrush currentBrush = *wxBLUE_BRUSH;
 
@@ -97,14 +109,13 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
 
         wxString label = wxString::Format("R%dC%d", pos.first, pos.second);
         std::shared_ptr<Tessera> c = tabellone->getTessera(index);
-        std::cout << "num: " << index << " " << c->getTitolo() << "\n";
 
         if (c) {
             label = c->getTitolo();
-             if(index==4){
+            if (index == 4) {
                 label = "Opportunita";
             }
-            if(index==19){
+            if (index == 19) {
                 label = "Inconvenienti";
             }
             dc.DrawText(label, x + 10, y + 10);
@@ -117,21 +128,16 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
         auto pos = boardPositions[currentPlayerPosition];
         int x = pos.second * cellWidth;
         int y = pos.first * cellHeight;
-        dc.DrawRectangle(x, y, cellWidth, cellHeight);
+        //dc.DrawRectangle(x, y, cellWidth, cellHeight);
 
-        dc.SetBrush(*wxRED_BRUSH);
-        dc.DrawCircle(x + cellWidth / 2, y + cellHeight / 2, 20);
+        dc.DrawBitmap(playerPawn, x + cellWidth / 2 - playerPawn.GetWidth() / 2, y + cellHeight / 2 - playerPawn.GetHeight() / 2, true);
 
         std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
         if (tesseraCorrente) {
-            std::cout << "tessera " << tesseraCorrente->getTitolo() << "\n";
-            std::cout << "posizione " << giocatore->getPosizione() << "\n";
-            std::cout << "tipo " << tesseraCorrente->getTipo() << "\n";
-
-            int infoBoxWidth = 300;
+             int infoBoxWidth = 300;
             int infoBoxHeight = 150;
-            int infoBoxX = this->GetClientSize().GetWidth() - infoBoxWidth - 10;
-            int infoBoxY = this->GetClientSize().GetHeight() - infoBoxHeight - 10;
+            int infoBoxX = this->GetClientSize().GetWidth() - infoBoxWidth - 200;
+            int infoBoxY = this->GetClientSize().GetHeight() - infoBoxHeight - 100;
             wxColour darkGrey(169, 169, 169);
             dc.SetBrush(wxBrush(darkGrey));
             dc.DrawRectangle(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
@@ -141,7 +147,6 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
             if (tesseraCorrente->getTipo() == "Proprieta") {
                 Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
                 if (proprieta) {
-                    std::cout << "SEI IN PROPRIETA " << "\n";
                     infoLabel += "\nCosto: " + std::to_string(proprieta->getCosto());
                     infoLabel += "\nCosto Casa: " + std::to_string(proprieta->getCostoCasa());
                     infoLabel += "\nProprietario: " + proprieta->getProprietario();
@@ -151,19 +156,16 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
                     tesseraInformativa->SetLabel(infoLabel);
                 }
             } else if (tesseraCorrente->getTipo() == "opportunita") {
-                std::cout << "SEI IN OPPORTUNITA " << "\n";
                 Opportunita opportunitaCasuale = tabellone->getOpportunita();
                 infoLabel += "\nTitolo: " + opportunitaCasuale.getTitolo();
                 infoLabel += "\nGuadagno: " + std::to_string(opportunitaCasuale.getImporto());
                 infoLabel += "\nBonus: " + std::to_string(opportunitaCasuale.isBonus());
-                
 
                 dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
                 tesseraInformativa->SetLabel(infoLabel);
 
                 wxMessageBox("Opportunità: " + opportunitaCasuale.getTitolo() + "\nImporto: " + std::to_string(opportunitaCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
             } else if (tesseraCorrente->getTipo() == "inconvenienti") {
-                std::cout << "SEI IN INCONVENIENTI " << "\n";
                 Inconvenienti inconvenienteCasuale = tabellone->getInconveniente();
                 infoLabel += "\nTitolo: " + inconvenienteCasuale.getTitolo();
                 infoLabel += "\nSpesa: " + std::to_string(inconvenienteCasuale.getImporto());
