@@ -13,5 +13,5 @@ virtual ~Prigione();
 void setGIorniDiPrigione(int giorni);
 int getGIorniDiPrigione();
 void vaiInPrigione(Giocatore g1);
- std::string getTipo() const override { return "Prigione";}
+ std::string getTipo() const override { return "prigione";}
 };

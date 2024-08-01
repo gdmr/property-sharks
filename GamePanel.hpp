@@ -12,7 +12,8 @@ enum
 {
     ID_COMPRABUTTON = 1,
     ID_LANCIADADOBUTTON = 2,
-    ID_COMPRACASABUTTON = 3
+    ID_COMPRACASABUTTON = 3,
+    ID_CLOSEBUTTON = 4
 };
 
 class Gamepanel : public wxPanel
@@ -27,6 +28,10 @@ private:
     void compraCasa(wxCommandEvent& event);
     void compraAlbergo(wxCommandEvent& event);
     void checkGameOver();
+    void onClose(wxCommandEvent& event);
+    void ShowPlayerPanel();
+    void ShowPendingMessage();
+
 
     Giocatore* giocatore;
     std::unique_ptr<Tabellone> tabellone;
@@ -41,6 +46,7 @@ private:
     wxButton* buttonLanciaDado;
     wxButton* buttonCompraCasa;
     wxButton* buttonCompraAlbergo;
+    wxButton* closeButton;
     
     std::vector<std::pair<int, int>> boardPositions;
     std::vector<int> logicalToPhysical;

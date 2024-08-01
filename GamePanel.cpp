@@ -7,6 +7,7 @@ wxBEGIN_EVENT_TABLE(Gamepanel, wxPanel)
     EVT_BUTTON(ID_COMPRABUTTON, Gamepanel::compraProprieta)
     EVT_BUTTON(ID_LANCIADADOBUTTON, Gamepanel::lanciaDado)
     EVT_BUTTON(ID_COMPRACASABUTTON, Gamepanel::compraCasa)
+    EVT_BUTTON(ID_CLOSEBUTTON, Gamepanel::onClose)
 wxEND_EVENT_TABLE()
 
 Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore) 
@@ -21,6 +22,8 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore)
     risultatolabel = new wxStaticText(this, wxID_ANY, "0" + std::to_string(dado->lanciaDadi()));
     wxButton* button = new wxButton(this, ID_COMPRABUTTON, "Compra");
     wxButton* lanciaDado = new wxButton(this, ID_LANCIADADOBUTTON, "Lancia i dadi");
+    closeButton = new wxButton(this, ID_CLOSEBUTTON, "Chiudi");
+    closeButton->Hide();
     buttonCompraCasa = new wxButton(this, ID_COMPRACASABUTTON, "Compra casa");
     
     tesseraInformativa = new wxStaticText(this, wxID_ANY, "Tessera corrente: Nessuna");
@@ -30,6 +33,7 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore)
     textSizer->Add(button, 0, wxALL | wxALIGN_CENTER, 5);
     textSizer->Add(lanciaDado, 0, wxALL | wxALIGN_CENTER, 5);
     textSizer->Add(buttonCompraCasa, 0, wxALL | wxALIGN_CENTER, 5);
+    textSizer->Add(closeButton, 0, wxALL | wxALIGN_CENTER, 5);
     textSizer->Add(nome, 0, wxALL, 5);
     textSizer->Add(saldo, 0, wxALL, 5);
     textSizer->Add(risultatolabel, 0, wxALL, 5);
@@ -74,7 +78,8 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
         return;
     }
 
-    int cellSize = 110;
+    int cellWidth = 150;
+    int cellHeight = 110; 
     int rows = 9;
     int cols = 9;
     int index = 0;
@@ -86,9 +91,9 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
             break;
         }
 
-        int x = pos.second * cellSize;
-        int y = pos.first * cellSize;
-        dc.DrawRectangle(x, y, cellSize, cellSize);
+        int x = pos.second * cellWidth;
+        int y = pos.first * cellHeight;
+        dc.DrawRectangle(x, y, cellWidth, cellHeight);
 
         wxString label = wxString::Format("R%dC%d", pos.first, pos.second);
         std::shared_ptr<Tessera> c = tabellone->getTessera(index);
@@ -96,6 +101,12 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
 
         if (c) {
             label = c->getTitolo();
+             if(index==4){
+                label = "Opportunita";
+            }
+            if(index==19){
+                label = "Inconvenienti";
+            }
             dc.DrawText(label, x + 10, y + 10);
         }
 
@@ -104,42 +115,65 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
 
     if (currentPlayerPosition < boardPositions.size()) {
         auto pos = boardPositions[currentPlayerPosition];
-        int x = pos.second * cellSize;
-        int y = pos.first * cellSize;
+        int x = pos.second * cellWidth;
+        int y = pos.first * cellHeight;
+        dc.DrawRectangle(x, y, cellWidth, cellHeight);
 
         dc.SetBrush(*wxRED_BRUSH);
-        dc.DrawCircle(x + cellSize / 2, y + cellSize / 2, 20);
+        dc.DrawCircle(x + cellWidth / 2, y + cellHeight / 2, 20);
 
         std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
         if (tesseraCorrente) {
             std::cout << "tessera " << tesseraCorrente->getTitolo() << "\n";
             std::cout << "posizione " << giocatore->getPosizione() << "\n";
+            std::cout << "tipo " << tesseraCorrente->getTipo() << "\n";
 
-            Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
-            if (proprieta) {
-                int infoBoxWidth = 300;
-                int infoBoxHeight = 150;
-                int infoBoxX = this->GetClientSize().GetWidth() - infoBoxWidth - 10;
-                int infoBoxY = this->GetClientSize().GetHeight() - infoBoxHeight - 10;
-                wxColour darkGrey(169, 169, 169);
-                dc.SetBrush(wxBrush(darkGrey));
-                dc.DrawRectangle(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
-                wxString infoLabel = "Tessera corrente: " + tesseraCorrente->getTitolo();
-                infoLabel += "\nCosto: " + std::to_string(proprieta->getCosto());
-                infoLabel += "\nCosto Casa: " + std::to_string(proprieta->getCostoCasa());
-                infoLabel += "\nProprietario: " + proprieta->getProprietario();
-                infoLabel += "\nCase: " + std::to_string(proprieta->getNumeroCase());
+            int infoBoxWidth = 300;
+            int infoBoxHeight = 150;
+            int infoBoxX = this->GetClientSize().GetWidth() - infoBoxWidth - 10;
+            int infoBoxY = this->GetClientSize().GetHeight() - infoBoxHeight - 10;
+            wxColour darkGrey(169, 169, 169);
+            dc.SetBrush(wxBrush(darkGrey));
+            dc.DrawRectangle(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
+
+            wxString infoLabel = "Tessera corrente: " + tesseraCorrente->getTitolo();
+
+            if (tesseraCorrente->getTipo() == "Proprieta") {
+                Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
+                if (proprieta) {
+                    std::cout << "SEI IN PROPRIETA " << "\n";
+                    infoLabel += "\nCosto: " + std::to_string(proprieta->getCosto());
+                    infoLabel += "\nCosto Casa: " + std::to_string(proprieta->getCostoCasa());
+                    infoLabel += "\nProprietario: " + proprieta->getProprietario();
+                    infoLabel += "\nCase: " + std::to_string(proprieta->getNumeroCase());
+
+                    dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
+                    tesseraInformativa->SetLabel(infoLabel);
+                }
+            } else if (tesseraCorrente->getTipo() == "opportunita") {
+                std::cout << "SEI IN OPPORTUNITA " << "\n";
+                Opportunita opportunitaCasuale = tabellone->getOpportunita();
+                infoLabel += "\nTitolo: " + opportunitaCasuale.getTitolo();
+                infoLabel += "\nGuadagno: " + std::to_string(opportunitaCasuale.getImporto());
+                infoLabel += "\nBonus: " + std::to_string(opportunitaCasuale.isBonus());
+                
 
                 dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
-
                 tesseraInformativa->SetLabel(infoLabel);
-                if (tesseraCorrente->getTitolo() == "opportunita" || tesseraCorrente->getTitolo() == "imprevisti" || tesseraCorrente->getTitolo() == "prigione" ) {
-                // Azione specifica per la tessera prigione
+
+                wxMessageBox("Opportunità: " + opportunitaCasuale.getTitolo() + "\nImporto: " + std::to_string(opportunitaCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
+            } else if (tesseraCorrente->getTipo() == "inconvenienti") {
+                std::cout << "SEI IN INCONVENIENTI " << "\n";
+                Inconvenienti inconvenienteCasuale = tabellone->getInconveniente();
+                infoLabel += "\nTitolo: " + inconvenienteCasuale.getTitolo();
+                infoLabel += "\nSpesa: " + std::to_string(inconvenienteCasuale.getImporto());
+
+                dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
+                tesseraInformativa->SetLabel(infoLabel);
+
+                wxMessageBox("Imprevisto: " + inconvenienteCasuale.getTitolo() + "\nImporto: " + std::to_string(inconvenienteCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
+            } else if (tesseraCorrente->getTipo() == "prigione") {
                 wxMessageBox("Sei finito in prigione!", "Avviso", wxOK | wxICON_INFORMATION);
-        
-            }
-            } else {
-                tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
             }
         } else {
             tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
@@ -195,8 +229,8 @@ void Gamepanel::lanciaDado(wxCommandEvent& event)
     giocatore->muoviGiocatore(risultato);
     currentPlayerPosition = giocatore->getPosizione();
     if (currentPlayerPosition < posizionePrecedente) {
-        giocatore->modificaSaldo(-1000);
-        wxMessageBox("Hai passato lo start! Bonus di 100 denti squalo");
+        giocatore->modificaSaldo(100);
+        //wxMessageBox("Hai passato lo start! Bonus di 100 denti squalo");
         saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
         checkGameOver(); 
     }
@@ -215,9 +249,17 @@ void Gamepanel::checkGameOver()
         FindWindowById(ID_LANCIADADOBUTTON)->Hide();
         FindWindowById(ID_COMPRACASABUTTON)->Hide();
         gameOverImage->Show();
+        closeButton->Show();
 
         
         this->Layout();
         Refresh();
     }
+}
+
+
+void Gamepanel::onClose(wxCommandEvent& event)
+{
+    // Chiudi la finestra
+    this->GetParent()->Close();
 }

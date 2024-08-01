@@ -67,3 +67,20 @@ if (posizione >= 0 && posizione < static_cast<int>(caselle.size())) {
 std::vector<std::shared_ptr<Tessera>> Tabellone::getCaselle(){
     return caselle;
 }
+
+
+Opportunita Tabellone::getOpportunita() const {
+    // Usa un generatore di numeri casuali
+    static std::mt19937 rng(static_cast<unsigned>(std::time(nullptr)));
+    std::uniform_int_distribution<std::size_t> distribuzione(0, opportunita.size() - 1);
+    std::size_t indiceCasuale = distribuzione(rng);
+    return opportunita[indiceCasuale];
+}
+
+Inconvenienti Tabellone::getInconveniente() const {
+    // Usa un generatore di numeri casuali
+    static std::mt19937 rng(static_cast<unsigned>(std::time(nullptr)));
+    std::uniform_int_distribution<std::size_t> distribuzione(0, inconvenienti.size() - 1);
+    std::size_t indiceCasuale = distribuzione(rng);
+    return inconvenienti[indiceCasuale];
+}

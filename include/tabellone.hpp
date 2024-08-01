@@ -3,6 +3,8 @@
 #include "inconvenienti.hpp"
 #include "opportunita.hpp"
 #include "prigione.hpp"
+#include <random>
+#include <ctime>
 #include <vector>
 #pragma once
 
@@ -18,8 +20,8 @@ public:
     ~Tabellone();
     void creaTabellone();
     std::shared_ptr<Tessera> getTessera(int posizione);
-    Inconvenienti getInconveniente();
-    Opportunita getOpportunita();
+    Inconvenienti getInconveniente() const;
+    Opportunita getOpportunita() const;
     std::vector<std::shared_ptr<Tessera>> getCaselle();
 };
 

@@ -14,7 +14,7 @@ public:
 Inconvenienti(const std::vector<Inconvenienti>& cards);  //costrutture per il set di carte
 Inconvenienti(std::string nome, int importo, bool prigione); //costruttore singolo
 virtual ~Inconvenienti();
-std::string getTipo() const override { return "Inconvenienti";}
+std::string getTipo() const override { return "inconvenienti";}
 Inconvenienti pescaCarta(); 
 int getImporto();
 bool isPrigione();
