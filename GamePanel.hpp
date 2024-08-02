@@ -39,6 +39,10 @@ private:
     std::unique_ptr<Dado> dado;
     int currentPlayerPosition;
     wxBitmap playerPawn;
+    wxBitmap houseIcon1;
+    wxBitmap houseIcon2; 
+    wxBitmap houseIcon3; 
+    wxBitmap houseIcon4; 
     wxStaticText* saldo;
     wxStaticText* risultatolabel;
     wxStaticText* tesseraInformativa;
@@ -51,6 +55,8 @@ private:
     wxButton* closeButton;
     
     std::vector<std::pair<int, int>> boardPositions;
+    std::vector<std::pair<int, int>> housePositions;
+    std::vector<int> houseCount;
     std::vector<int> logicalToPhysical;
 
     wxDECLARE_EVENT_TABLE();

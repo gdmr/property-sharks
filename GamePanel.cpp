@@ -21,7 +21,20 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, wxBitmap selectedPa
     pawnImage.Rescale(newWidth, newHeight);
     playerPawn = wxBitmap(pawnImage);
     tabellone->creaTabellone();
-    
+
+    wxImage houseImage1(wxT("img/house.png"), wxBITMAP_TYPE_PNG);
+    houseImage1.Rescale(20, 20);
+    houseIcon1 = wxBitmap(houseImage1);
+    wxImage houseImage2(wxT("img/house2.png"), wxBITMAP_TYPE_PNG);
+    houseImage2.Rescale(20, 20);
+    houseIcon2 = wxBitmap(houseImage2);
+     wxImage houseImage3(wxT("img/house3.png"), wxBITMAP_TYPE_PNG);
+    houseImage3.Rescale(50, 50);
+    houseIcon3 = wxBitmap(houseImage3);
+     wxImage houseImage4(wxT("img/house4.png"), wxBITMAP_TYPE_PNG);
+    houseImage4.Rescale(20, 20);
+    houseIcon4 = wxBitmap(houseImage4);
+
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* centerSizer = new wxBoxSizer(wxVERTICAL);
     wxBoxSizer* buttonSizer = new wxBoxSizer(wxVERTICAL);
@@ -41,7 +54,6 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, wxBitmap selectedPa
     gameOverImage = new wxStaticBitmap(this, wxID_ANY, gameOverBitmap);
     gameOverImage->Hide();
     
-    // Set button colors and styles
     wxColour buttonColor(0x1E, 0x90, 0xFF);
     wxColour buttonTextColor(0xFF, 0xFF, 0xFF);
     wxColour buttonHoverColor(0x00, 0x7A, 0xCC);
@@ -88,7 +100,6 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, wxBitmap selectedPa
     
     centerSizer->Add(buttonSizer, 0, wxALL | wxALIGN_CENTER, 5);
     
-    // Set central text color
     wxColour centralTextColor(0x00, 0x00, 0x00);
     nome->SetForegroundColour(centralTextColor);
     saldo->SetForegroundColour(centralTextColor);
@@ -125,6 +136,7 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, wxBitmap selectedPa
         boardPositions.push_back({row, 0});
     }
 }
+
 
 
 void Gamepanel::OnPaint(wxPaintEvent& event)
@@ -232,20 +244,27 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
             } else if (tesseraCorrente->getTipo() == "opportunita") {
                 Opportunita opportunitaCasuale = tabellone->getOpportunita();
                 infoLabel += "\nTitolo: " + opportunitaCasuale.getTitolo();
-                infoLabel += "\nGuadagno: " + std::to_string(opportunitaCasuale.getImporto());
+                int guadagno = opportunitaCasuale.getImporto();
+                infoLabel += "\nGuadagno: " + std::to_string(guadagno);
+                giocatore->modificaSaldo(guadagno);
                 infoLabel += "\nBonus: " + std::to_string(opportunitaCasuale.isBonus());
 
                 dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
                 tesseraInformativa->SetLabel(infoLabel);
+                saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
 
                 wxMessageBox("Opportunità: " + opportunitaCasuale.getTitolo() + "\nImporto: " + std::to_string(opportunitaCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
             } else if (tesseraCorrente->getTipo() == "inconvenienti") {
                 Inconvenienti inconvenienteCasuale = tabellone->getInconveniente();
                 infoLabel += "\nTitolo: " + inconvenienteCasuale.getTitolo();
-                infoLabel += "\nSpesa: " + std::to_string(inconvenienteCasuale.getImporto());
+                int spesa = inconvenienteCasuale.getImporto();
+                giocatore->modificaSaldo(-spesa);
+                infoLabel += "\nSpesa: " + std::to_string(-spesa);
+                saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
 
                 dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
                 tesseraInformativa->SetLabel(infoLabel);
+
 
                 wxMessageBox("Imprevisto: " + inconvenienteCasuale.getTitolo() + "\nImporto: " + std::to_string(inconvenienteCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
             } else if (tesseraCorrente->getTipo() == "prigione") {
@@ -255,6 +274,12 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
             tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
         }
     }
+for (const auto& housePos : housePositions) {
+        int houseX = housePos.second * cellWidth + cellWidth / 2 - houseIcon1.GetWidth() / 2;
+        int houseY = housePos.first * cellHeight + cellHeight / 2 - houseIcon1.GetHeight() / 2;
+        dc.DrawBitmap(houseIcon1, houseX, houseY, true);
+    }
+
 }
 
 void Gamepanel::compraProprieta(wxCommandEvent& event)
@@ -283,6 +308,7 @@ void Gamepanel::compraCasa(wxCommandEvent& event){
     {
     case 0:
         wxMessageBox("Casa acquistata", "Complimenti", wxOK | wxICON_INFORMATION);
+         housePositions.push_back(boardPositions[currentPlayerPosition]); 
         break;
      case 1:
         wxMessageBox("Numero massimo di case raggiunto", "Attento", wxOK | wxICON_ERROR);
