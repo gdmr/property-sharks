@@ -6,8 +6,7 @@ wxEND_EVENT_TABLE()
 
 Mainframe::Mainframe(const wxString& title)
     : wxFrame(NULL, wxID_ANY, title, wxDefaultPosition, wxSize(800, 600),
-              wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE),
-    giocatore(nullptr)
+              wxDEFAULT_FRAME_STYLE | wxFULL_REPAINT_ON_RESIZE), giocatore(nullptr), bot(nullptr)
 {
     playerPanel = new Playerpanel(this);
     SetSizer(new wxBoxSizer(wxVERTICAL));
@@ -54,7 +53,10 @@ void Mainframe::ShowGamePanel(const wxString& playerName, int pawnIndex)
     }
 
     giocatore = new Giocatore(playerName.ToStdString(), 1000, false);
-    gamePanel = new Gamepanel(this, giocatore, selectedPawn);  
+    wxBitmap botPawn;
+    botPawn.LoadFile("img/squalorobot.png", wxBITMAP_TYPE_PNG); // Assicurati che questa immagine esista
+    bot = new Giocatore("bot01", 1000, true);
+    gamePanel = new Gamepanel(this, giocatore, bot, selectedPawn, botPawn);  
     GetSizer()->Add(gamePanel, 1, wxEXPAND);
     Layout();
 }

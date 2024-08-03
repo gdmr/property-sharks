@@ -12,15 +12,22 @@ wxBEGIN_EVENT_TABLE(Gamepanel, wxPanel)
 wxEND_EVENT_TABLE()
 
 
-Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, wxBitmap selectedPawn) 
-    : wxPanel(parent, wxID_ANY), giocatore(giocatore), tabellone(new Tabellone()), dado(new Dado()), currentPlayerPosition(0), playerPawn(selectedPawn)
+Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, Giocatore* bot, wxBitmap selectedPawn, wxBitmap botPawn) : wxPanel(parent, wxID_ANY), giocatore(giocatore), bot(bot), tabellone(new Tabellone()), dado(new Dado()), currentPlayerPosition(0), playerPawn(selectedPawn), botPawn(botPawn)
 {
     wxImage pawnImage = selectedPawn.ConvertToImage();
     int newWidth = 70;
     int newHeight = 70;
     pawnImage.Rescale(newWidth, newHeight);
     playerPawn = wxBitmap(pawnImage);
+    wxImage botPawnImage = botPawn.ConvertToImage();
+    botPawnImage.Rescale(newWidth, newHeight);
+    this->botPawn = wxBitmap(botPawnImage);
     tabellone->creaTabellone();
+   
+
+
+
+
 
     wxImage houseImage1(wxT("img/house.png"), wxBITMAP_TYPE_PNG);
     houseImage1.Rescale(20, 20);
@@ -151,6 +158,8 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
     wxColour infoBackground(0xA9, 0xA9, 0xA9);
     wxColour infoText(0x00, 0x00, 0x00);
     wxColour infoBoxBackground(0xFF, 0xFF, 0xFF);
+    wxColour verdeTile(0, 255, 0); 
+    wxColour rossoTile(255, 0, 0); 
     
     dc.SetBackground(wxBrush(boardBackground));
     dc.Clear();
@@ -180,7 +189,11 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
         std::shared_ptr<Tessera> c = tabellone->getTessera(index);
         if (c) {
             if (c->getTipo() == "Proprieta") {
-                dc.SetBrush(wxBrush(normalTile));
+                if (c->getProprietario() == giocatore->getNome()) {
+                    dc.SetBrush(wxBrush(verdeTile));
+                } else {
+                    dc.SetBrush(wxBrush(normalTile));
+                }
             } else if (c->getTipo() == "opportunita") {
                 dc.SetBrush(wxBrush(opportunitaTile));
             } else if (c->getTipo() == "inconvenienti") {
@@ -209,78 +222,88 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
 
         index++;
     }
-
+    
+    // Disegna la pedina del giocatore umano
     if (currentPlayerPosition < boardPositions.size()) {
         auto pos = boardPositions[currentPlayerPosition];
         int x = pos.second * cellWidth;
         int y = pos.first * cellHeight;
 
         dc.DrawBitmap(playerPawn, x + cellWidth / 2 - playerPawn.GetWidth() / 2, y + cellHeight / 2 - playerPawn.GetHeight() / 2, true);
-
-        std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
-        if (tesseraCorrente) {
-            int infoBoxWidth = clientSize.GetWidth() * 0.3;
-            int infoBoxHeight = clientSize.GetHeight() * 0.2;
-            int infoBoxX = clientSize.GetWidth() - infoBoxWidth - 200;
-            int infoBoxY = clientSize.GetHeight() - infoBoxHeight - 200;
-
-            dc.SetBrush(wxBrush(infoBoxBackground));
-            dc.DrawRectangle(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
-
-            dc.SetTextForeground(infoText);
-            wxString infoLabel = "Tessera corrente: " + tesseraCorrente->getTitolo();
-
-            if (tesseraCorrente->getTipo() == "Proprieta") {
-                Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
-                if (proprieta) {
-                    infoLabel += "\nCosto: " + std::to_string(proprieta->getCosto());
-                    infoLabel += "\nCosto Casa: " + std::to_string(proprieta->getCostoCasa());
-                    infoLabel += "\nProprietario: " + proprieta->getProprietario();
-                    infoLabel += "\nCase: " + std::to_string(proprieta->getNumeroCase());
-
-                    dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
-                    tesseraInformativa->SetLabel(infoLabel);
-                }
-            } else if (tesseraCorrente->getTipo() == "opportunita") {
-                Opportunita opportunitaCasuale = tabellone->getOpportunita();
-                infoLabel += "\nTitolo: " + opportunitaCasuale.getTitolo();
-                int guadagno = opportunitaCasuale.getImporto();
-                infoLabel += "\nGuadagno: " + std::to_string(guadagno);
-                giocatore->modificaSaldo(guadagno);
-                infoLabel += "\nBonus: " + std::to_string(opportunitaCasuale.isBonus());
-
-                dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
-                tesseraInformativa->SetLabel(infoLabel);
-                saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
-
-                wxMessageBox("Opportunità: " + opportunitaCasuale.getTitolo() + "\nImporto: " + std::to_string(opportunitaCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
-            } else if (tesseraCorrente->getTipo() == "inconvenienti") {
-                Inconvenienti inconvenienteCasuale = tabellone->getInconveniente();
-                infoLabel += "\nTitolo: " + inconvenienteCasuale.getTitolo();
-                int spesa = inconvenienteCasuale.getImporto();
-                giocatore->modificaSaldo(-spesa);
-                infoLabel += "\nSpesa: " + std::to_string(-spesa);
-                saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
-
-                dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
-                tesseraInformativa->SetLabel(infoLabel);
-
-
-                wxMessageBox("Imprevisto: " + inconvenienteCasuale.getTitolo() + "\nImporto: " + std::to_string(inconvenienteCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
-            } else if (tesseraCorrente->getTipo() == "prigione") {
-                wxMessageBox("Sei finito in prigione!", "Avviso", wxOK | wxICON_INFORMATION);
-            }
-        } else {
-            tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
-        }
     }
-for (const auto& housePos : housePositions) {
+
+    // Disegna la pedina del bot
+    if (botPosition < boardPositions.size()) {
+        auto botPos = boardPositions[botPosition];
+        int botX = botPos.second * cellWidth;
+        int botY = botPos.first * cellHeight;
+
+        dc.DrawBitmap(botPawn, botX + cellWidth / 2 - botPawn.GetWidth() / 2, botY + cellHeight / 2 - botPawn.GetHeight() / 2, true);
+    }
+
+    std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
+    if (tesseraCorrente) {
+        int infoBoxWidth = clientSize.GetWidth() * 0.3;
+        int infoBoxHeight = clientSize.GetHeight() * 0.2;
+        int infoBoxX = clientSize.GetWidth() - infoBoxWidth - 200;
+        int infoBoxY = clientSize.GetHeight() - infoBoxHeight - 200;
+
+        dc.SetBrush(wxBrush(infoBoxBackground));
+        dc.DrawRectangle(infoBoxX, infoBoxY, infoBoxWidth, infoBoxHeight);
+
+        dc.SetTextForeground(infoText);
+        wxString infoLabel = "Tessera corrente: " + tesseraCorrente->getTitolo();
+
+        if (tesseraCorrente->getTipo() == "Proprieta") {
+            Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
+            if (proprieta) {
+                infoLabel += "\nCosto: " + std::to_string(proprieta->getCosto());
+                infoLabel += "\nCosto Casa: " + std::to_string(proprieta->getCostoCasa());
+                infoLabel += "\nProprietario: " + proprieta->getProprietario();
+                infoLabel += "\nCase: " + std::to_string(proprieta->getNumeroCase());
+
+                dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
+                tesseraInformativa->SetLabel(infoLabel);
+            }
+        } else if (tesseraCorrente->getTipo() == "opportunita") {
+            Opportunita opportunitaCasuale = tabellone->getOpportunita();
+            infoLabel += "\nTitolo: " + opportunitaCasuale.getTitolo();
+            int guadagno = opportunitaCasuale.getImporto();
+            infoLabel += "\nGuadagno: " + std::to_string(guadagno);
+            giocatore->modificaSaldo(guadagno);
+            infoLabel += "\nBonus: " + std::to_string(opportunitaCasuale.isBonus());
+
+            dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
+            tesseraInformativa->SetLabel(infoLabel);
+            saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
+
+            wxMessageBox("Opportunità: " + opportunitaCasuale.getTitolo() + "\nImporto: " + std::to_string(opportunitaCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
+        } else if (tesseraCorrente->getTipo() == "inconvenienti") {
+            Inconvenienti inconvenienteCasuale = tabellone->getInconveniente();
+            infoLabel += "\nTitolo: " + inconvenienteCasuale.getTitolo();
+            int spesa = inconvenienteCasuale.getImporto();
+            giocatore->modificaSaldo(-spesa);
+            infoLabel += "\nSpesa: " + std::to_string(-spesa);
+            saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
+
+            dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
+            tesseraInformativa->SetLabel(infoLabel);
+
+            wxMessageBox("Imprevisto: " + inconvenienteCasuale.getTitolo() + "\nImporto: " + std::to_string(inconvenienteCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
+        } else if (tesseraCorrente->getTipo() == "prigione") {
+            wxMessageBox("Sei finito in prigione!", "Avviso", wxOK | wxICON_INFORMATION);
+        }
+    } else {
+        tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
+    }
+
+    for (const auto& housePos : housePositions) {
         int houseX = housePos.second * cellWidth + cellWidth / 2 - houseIcon1.GetWidth() / 2;
         int houseY = housePos.first * cellHeight + cellHeight / 2 - houseIcon1.GetHeight() / 2;
         dc.DrawBitmap(houseIcon1, houseX, houseY, true);
     }
-
 }
+
 
 void Gamepanel::compraProprieta(wxCommandEvent& event)
 {
@@ -298,6 +321,7 @@ void Gamepanel::compraProprieta(wxCommandEvent& event)
     giocatore->acquistaProprieta(*proprieta);
     saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
     Refresh();}
+    eseguiTurnoBot();
 }
 
 void Gamepanel::compraCasa(wxCommandEvent& event){
@@ -338,6 +362,11 @@ void Gamepanel::lanciaDado(wxCommandEvent& event)
     }
     currentPlayerPosition = giocatore->getPosizione();
     Refresh();
+
+     if (!giocatore->isBot()) {
+        wxMilliSleep(1000); 
+        eseguiTurnoBot();
+    }
 }
 
 void Gamepanel::checkGameOver()
@@ -359,6 +388,49 @@ void Gamepanel::checkGameOver()
     }
 }
 
+void Gamepanel::eseguiTurnoBot()
+{
+    // Disabilita i pulsanti di interazione
+    FindWindowById(ID_COMPRABUTTON)->Disable();
+    FindWindowById(ID_LANCIADADOBUTTON)->Disable();
+    FindWindowById(ID_COMPRACASABUTTON)->Disable();
+
+    // Simula il lancio dei dadi del bot
+    int risultato = dado->lanciaDadi();
+    bot->muoviGiocatore(risultato);
+    botPosition = bot->getPosizione();
+    Refresh();
+
+    // Simula le azioni del bot (acquisto proprietà, pagamento affitto, ecc.)
+    turnoBot();
+
+    // Riabilita i pulsanti di interazione
+    FindWindowById(ID_COMPRABUTTON)->Enable();
+    FindWindowById(ID_LANCIADADOBUTTON)->Enable();
+    FindWindowById(ID_COMPRACASABUTTON)->Enable();
+}
+
+void Gamepanel::turnoBot()
+{
+    std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(bot->getPosizione());
+    Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
+    if (proprieta && proprieta->getProprietario() == "") {
+        if (bot->getSaldo() >= proprieta->getCosto()) {
+            //bot->acquistaProprieta(*proprieta);
+        }
+    } else if (proprieta && proprieta->getProprietario() != bot->getNome()) {
+        //int affitto = proprieta->calcolaAffitto();
+        //bot->pagaAffitto(*tabellone->getGiocatore(proprieta->getProprietario()), affitto);
+    }
+
+    //Decisioni per l’acquisto di case
+    for (Proprieta& prop : bot->getProprietaPossedute()) {
+if (bot->getSaldo() >= prop.getCostoCasa() && prop.getNumeroCase() < 4) {
+bot->acquistaCasa(prop);
+}
+}
+    Refresh();
+}
 
 void Gamepanel::onClose(wxCommandEvent& event)
 {

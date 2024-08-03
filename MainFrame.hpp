@@ -21,6 +21,7 @@ private:
     Playerpanel* playerPanel;
     Gamepanel* gamePanel;
     Giocatore* giocatore;
+    Giocatore* bot;
 
     wxDECLARE_EVENT_TABLE();
 };
