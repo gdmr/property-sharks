@@ -29,12 +29,9 @@ private:
     void compraAlbergo(wxCommandEvent& event);
     void checkGameOver();
     void onClose(wxCommandEvent& event);
-    void ShowPlayerPanel();
-    void ShowPendingMessage();
-    void OnPlayerSubmit(wxCommandEvent& event);
     void eseguiTurnoBot();
     void turnoBot();
-
+    void onTimer(wxTimerEvent& event);
 
     Giocatore* giocatore;
     Giocatore* bot;
@@ -58,6 +55,9 @@ private:
     wxButton* buttonCompraCasa;
     wxButton* buttonCompraAlbergo;
     wxButton* closeButton;
+    wxTimer* m_timer;
+    int m_moveSteps;
+    bool m_isBotTurn;
     
     std::vector<std::pair<int, int>> boardPositions;
     std::vector<std::pair<int, int>> housePositions;

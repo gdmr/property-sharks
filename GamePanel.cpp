@@ -12,7 +12,7 @@ wxBEGIN_EVENT_TABLE(Gamepanel, wxPanel)
 wxEND_EVENT_TABLE()
 
 
-Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, Giocatore* bot, wxBitmap selectedPawn, wxBitmap botPawn) : wxPanel(parent, wxID_ANY), giocatore(giocatore), bot(bot), tabellone(new Tabellone()), dado(new Dado()), currentPlayerPosition(0), playerPawn(selectedPawn), botPawn(botPawn)
+Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, Giocatore* bot, wxBitmap selectedPawn, wxBitmap botPawn) : wxPanel(parent, wxID_ANY), giocatore(giocatore), bot(bot), tabellone(new Tabellone()), dado(new Dado()), currentPlayerPosition(0), playerPawn(selectedPawn), botPawn(botPawn), m_timer(new wxTimer(this)), m_moveSteps(0), m_isBotTurn(false)
 {
     wxImage pawnImage = selectedPawn.ConvertToImage();
     int newWidth = 70;
@@ -24,7 +24,7 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, Giocatore* bot, wxB
     this->botPawn = wxBitmap(botPawnImage);
     tabellone->creaTabellone();
    
-
+    Bind(wxEVT_TIMER, &Gamepanel::onTimer, this);
 
 
 
@@ -50,7 +50,7 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, Giocatore* bot, wxB
     saldo = new wxStaticText(this, wxID_ANY, "saldo giocatore: " + std::to_string(giocatore->getSaldo()));
     risultatolabel = new wxStaticText(this, wxID_ANY, "0" + std::to_string(dado->lanciaDadi()));
     
-    wxButton* button = new wxButton(this, ID_COMPRABUTTON, "Compra");
+    wxButton* button = new wxButton(this, ID_COMPRABUTTON, "Compra proprietà");
     wxButton* lanciaDado = new wxButton(this, ID_LANCIADADOBUTTON, "Lancia i dadi");
     closeButton = new wxButton(this, ID_CLOSEBUTTON, "Chiudi");
     closeButton->Hide();
@@ -164,10 +164,6 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
     dc.SetBackground(wxBrush(boardBackground));
     dc.Clear();
 
-    if (giocatore->getSaldo() < 0) {
-        return;
-    }
-
     wxSize clientSize = this->GetClientSize();
     int rows = 9;
     int cols = 9;
@@ -191,6 +187,8 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
             if (c->getTipo() == "Proprieta") {
                 if (c->getProprietario() == giocatore->getNome()) {
                     dc.SetBrush(wxBrush(verdeTile));
+                } else if (c->getProprietario() == bot->getNome()) {
+                    dc.SetBrush(wxBrush(rossoTile));
                 } else {
                     dc.SetBrush(wxBrush(normalTile));
                 }
@@ -222,8 +220,7 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
 
         index++;
     }
-    
-    // Disegna la pedina del giocatore umano
+
     if (currentPlayerPosition < boardPositions.size()) {
         auto pos = boardPositions[currentPlayerPosition];
         int x = pos.second * cellWidth;
@@ -231,8 +228,6 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
 
         dc.DrawBitmap(playerPawn, x + cellWidth / 2 - playerPawn.GetWidth() / 2, y + cellHeight / 2 - playerPawn.GetHeight() / 2, true);
     }
-
-    // Disegna la pedina del bot
     if (botPosition < boardPositions.size()) {
         auto botPos = boardPositions[botPosition];
         int botX = botPos.second * cellWidth;
@@ -270,28 +265,20 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
             infoLabel += "\nTitolo: " + opportunitaCasuale.getTitolo();
             int guadagno = opportunitaCasuale.getImporto();
             infoLabel += "\nGuadagno: " + std::to_string(guadagno);
-            giocatore->modificaSaldo(guadagno);
             infoLabel += "\nBonus: " + std::to_string(opportunitaCasuale.isBonus());
 
             dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
             tesseraInformativa->SetLabel(infoLabel);
-            saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
-
-            wxMessageBox("Opportunità: " + opportunitaCasuale.getTitolo() + "\nImporto: " + std::to_string(opportunitaCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
         } else if (tesseraCorrente->getTipo() == "inconvenienti") {
             Inconvenienti inconvenienteCasuale = tabellone->getInconveniente();
             infoLabel += "\nTitolo: " + inconvenienteCasuale.getTitolo();
             int spesa = inconvenienteCasuale.getImporto();
-            giocatore->modificaSaldo(-spesa);
-            infoLabel += "\nSpesa: " + std::to_string(-spesa);
-            saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
+            infoLabel += "\nSpesa: " + std::to_string(spesa);
 
             dc.DrawText(infoLabel, infoBoxX + 10, infoBoxY + 10);
             tesseraInformativa->SetLabel(infoLabel);
-
-            wxMessageBox("Imprevisto: " + inconvenienteCasuale.getTitolo() + "\nImporto: " + std::to_string(inconvenienteCasuale.getImporto()), "Avviso", wxOK | wxICON_INFORMATION);
         } else if (tesseraCorrente->getTipo() == "prigione") {
-            wxMessageBox("Sei finito in prigione!", "Avviso", wxOK | wxICON_INFORMATION);
+            // 
         }
     } else {
         tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
@@ -310,8 +297,16 @@ void Gamepanel::compraProprieta(wxCommandEvent& event)
     std::shared_ptr tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
     Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
     if (proprieta) {
+        if (proprieta->getTitolo() == "START") {
+            wxMessageBox("Non puoi comprare la prorprietà", "Attento", wxOK | wxICON_ERROR);
+            return;
+        }
         if (proprieta->getProprietario() == giocatore->getNome()) {
             wxMessageBox("Sei già il proprietario di questa proprietà", "Attento", wxOK | wxICON_ERROR);
+            return;
+        }
+        if (proprieta->getProprietario() != "banca") {
+            wxMessageBox("Non puoi acquistare questa proprietà appartiene alla banca", "Attento", wxOK | wxICON_ERROR);
             return;
         }
         if (giocatore->getSaldo() < proprieta->getCosto()) {
@@ -321,7 +316,6 @@ void Gamepanel::compraProprieta(wxCommandEvent& event)
     giocatore->acquistaProprieta(*proprieta);
     saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
     Refresh();}
-    eseguiTurnoBot();
 }
 
 void Gamepanel::compraCasa(wxCommandEvent& event){
@@ -349,24 +343,18 @@ void Gamepanel::compraCasa(wxCommandEvent& event){
 
 void Gamepanel::lanciaDado(wxCommandEvent& event)
 {
+    checkGameOver();
     int risultato = dado->lanciaDadi();
     risultatolabel->SetLabel("esito lancio: " + std::to_string(risultato));
     int posizionePrecedente = giocatore->getPosizione();
-    giocatore->muoviGiocatore(risultato);
-    currentPlayerPosition = giocatore->getPosizione();
-    if (currentPlayerPosition < posizionePrecedente) {
-        giocatore->modificaSaldo(100);
-        //wxMessageBox("Hai passato lo start! Bonus di 100 denti squalo");
-        saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
-        checkGameOver(); 
-    }
-    currentPlayerPosition = giocatore->getPosizione();
-    Refresh();
 
-     if (!giocatore->isBot()) {
-        wxMilliSleep(1000); 
-        eseguiTurnoBot();
-    }
+    FindWindowById(ID_COMPRABUTTON)->Disable();
+    FindWindowById(ID_LANCIADADOBUTTON)->Disable();
+    FindWindowById(ID_COMPRACASABUTTON)->Disable();
+
+    m_moveSteps = risultato;
+    m_isBotTurn = false;
+    m_timer->Start(200);
 }
 
 void Gamepanel::checkGameOver()
@@ -390,21 +378,14 @@ void Gamepanel::checkGameOver()
 
 void Gamepanel::eseguiTurnoBot()
 {
-    // Disabilita i pulsanti di interazione
     FindWindowById(ID_COMPRABUTTON)->Disable();
     FindWindowById(ID_LANCIADADOBUTTON)->Disable();
     FindWindowById(ID_COMPRACASABUTTON)->Disable();
-
-    // Simula il lancio dei dadi del bot
     int risultato = dado->lanciaDadi();
     bot->muoviGiocatore(risultato);
     botPosition = bot->getPosizione();
     Refresh();
-
-    // Simula le azioni del bot (acquisto proprietà, pagamento affitto, ecc.)
     turnoBot();
-
-    // Riabilita i pulsanti di interazione
     FindWindowById(ID_COMPRABUTTON)->Enable();
     FindWindowById(ID_LANCIADADOBUTTON)->Enable();
     FindWindowById(ID_COMPRACASABUTTON)->Enable();
@@ -412,28 +393,73 @@ void Gamepanel::eseguiTurnoBot()
 
 void Gamepanel::turnoBot()
 {
+          
     std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(bot->getPosizione());
-    Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
-    if (proprieta && proprieta->getProprietario() == "") {
-        if (bot->getSaldo() >= proprieta->getCosto()) {
-            //bot->acquistaProprieta(*proprieta);
-        }
-    } else if (proprieta && proprieta->getProprietario() != bot->getNome()) {
-        //int affitto = proprieta->calcolaAffitto();
-        //bot->pagaAffitto(*tabellone->getGiocatore(proprieta->getProprietario()), affitto);
+    if (!tesseraCorrente) {
+        wxLogDebug("tesseraCorrente è nullptr");
+        return;
     }
 
-    //Decisioni per l’acquisto di case
+    Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
+    if (!proprieta) {
+        wxLogDebug("dynamic_cast fallito, tessera non è Proprieta");
+        return;
+    }
+
+    std::cout << "TURNO BOT\n";
+    std::cout << "SALDO " << bot->getSaldo() << "\n";
+    std::cout << "tessera " << proprieta->getTitolo() << "\n";
+
+    if (proprieta->getProprietario() == "banca") {
+        if (bot->getSaldo() >= proprieta->getCosto()) {
+            std::cout << "BOT ACQUISTA CASA\n";
+            bot->acquistaProprieta(*proprieta);
+        }
+    } else if (proprieta->getProprietario() != bot->getNome()) {
+        // int affitto = proprieta->calcolaAffitto();
+        // bot->pagaAffitto(*tabellone->getGiocatore(proprieta->getProprietario()), affitto);
+    }
+
+    // Decisioni per l’acquisto di case
     for (Proprieta& prop : bot->getProprietaPossedute()) {
-if (bot->getSaldo() >= prop.getCostoCasa() && prop.getNumeroCase() < 4) {
-bot->acquistaCasa(prop);
-}
-}
+        if (bot->getSaldo() >= prop.getCostoCasa() && prop.getNumeroCase() < 4) {
+            bot->acquistaCasa(prop);
+        }
+    }
+
     Refresh();
 }
 
 void Gamepanel::onClose(wxCommandEvent& event)
 {
-    // Chiudi la finestra
     this->GetParent()->Close();
+}
+
+void Gamepanel::onTimer(wxTimerEvent& event)
+{
+    if (m_isBotTurn) {
+        bot->muoviGiocatore(1);
+        botPosition = bot->getPosizione();
+    } else {
+        giocatore->muoviGiocatore(1);
+        currentPlayerPosition = giocatore->getPosizione();
+    }
+
+    m_moveSteps--;
+
+    if (m_moveSteps <= 0) {
+        m_timer->Stop();
+
+        if (m_isBotTurn) {
+            FindWindowById(ID_COMPRABUTTON)->Enable();
+            FindWindowById(ID_LANCIADADOBUTTON)->Enable();
+            FindWindowById(ID_COMPRACASABUTTON)->Enable();
+        } else {
+            m_isBotTurn = true;
+            m_moveSteps = dado->lanciaDadi();
+            m_timer->Start(200);
+        }
+    }
+
+    Refresh();
 }

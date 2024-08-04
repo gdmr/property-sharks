@@ -11,6 +11,7 @@ void Giocatore::modificaSaldo(int soldi){
 void Giocatore::muoviGiocatore(int lancio){
     posizione += lancio;
     if (posizione >= 32) {  
+        modificaSaldo(100); //bonus start
         posizione = posizione % 32;
     }
 }
