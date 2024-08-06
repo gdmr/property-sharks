@@ -31,17 +31,17 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, Giocatore* bot, wxB
 
 
 
-    wxImage houseImage1(wxT("img/house.png"), wxBITMAP_TYPE_PNG);
-    houseImage1.Rescale(20, 20);
+    wxImage houseImage1(wxT("img/house1.png"), wxBITMAP_TYPE_PNG);
+    houseImage1.Rescale(150, 150);
     houseIcon1 = wxBitmap(houseImage1);
     wxImage houseImage2(wxT("img/house2.png"), wxBITMAP_TYPE_PNG);
-    houseImage2.Rescale(20, 20);
+    houseImage2.Rescale(150, 150);
     houseIcon2 = wxBitmap(houseImage2);
      wxImage houseImage3(wxT("img/house3.png"), wxBITMAP_TYPE_PNG);
-    houseImage3.Rescale(50, 50);
+    houseImage3.Rescale(150, 150);
     houseIcon3 = wxBitmap(houseImage3);
      wxImage houseImage4(wxT("img/house4.png"), wxBITMAP_TYPE_PNG);
-    houseImage4.Rescale(20, 20);
+    houseImage4.Rescale(150, 150);
     houseIcon4 = wxBitmap(houseImage4);
 
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
@@ -54,7 +54,7 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, Giocatore* bot, wxB
     
     wxButton* button = new wxButton(this, ID_COMPRABUTTON, "Compra proprietà");
     wxButton* lanciaDado = new wxButton(this, ID_LANCIADADOBUTTON, "Lancia i dadi");
-    wxButton* passaTurno = new wxButton(this, ID_PASSABUTTON, "Salta turno");
+    wxButton* passaTurno = new wxButton(this, ID_PASSABUTTON, "Passa");
     closeButton = new wxButton(this, ID_CLOSEBUTTON, "Chiudi");
     closeButton->Hide();
     buttonCompraCasa = new wxButton(this, ID_COMPRACASABUTTON, "Compra casa");
@@ -289,10 +289,40 @@ void Gamepanel::OnPaint(wxPaintEvent& event)
         tesseraInformativa->SetLabel("Tessera corrente: Nessuna");
     }
 
-    for (const auto& housePos : housePositions) {
-        int houseX = housePos.second * cellWidth + cellWidth / 2 - houseIcon1.GetWidth() / 2;
-        int houseY = housePos.first * cellHeight + cellHeight / 2 - houseIcon1.GetHeight() / 2;
-        dc.DrawBitmap(houseIcon1, houseX, houseY, true);
+    for (int i = 0; i < boardPositions.size(); ++i) {
+        std::shared_ptr<Tessera> tessera = tabellone->getTessera(i);
+        if (!tessera || tessera->getTipo() != "Proprieta") {
+            continue;
+        }
+
+        Proprieta* proprieta = dynamic_cast<Proprieta*>(tessera.get());
+        if (proprieta && proprieta->getNumeroCase() > 0) {
+            int numCase = proprieta->getNumeroCase();
+            wxBitmap* houseIcon = nullptr;
+            switch (numCase) {
+                case 1:
+                    houseIcon = &houseIcon1;
+                    break;
+                case 2:
+                    houseIcon = &houseIcon2;
+                    break;
+                case 3:
+                    houseIcon = &houseIcon3;
+                    break;
+                case 4:
+                    houseIcon = &houseIcon4;
+                    break;
+                default:
+                    break;
+            }
+
+            if (houseIcon) {
+                auto pos = boardPositions[i];
+                int houseX = pos.second * cellWidth + cellWidth / 2 - houseIcon->GetWidth() / 2;
+                int houseY = (pos.first * cellHeight + cellHeight / 2 - houseIcon->GetHeight() / 2)+30;
+                dc.DrawBitmap(*houseIcon, houseX, houseY, true);
+            }
+        }
     }
 }
 
