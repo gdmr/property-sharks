@@ -13,7 +13,9 @@ enum
     ID_COMPRABUTTON = 1,
     ID_LANCIADADOBUTTON = 2,
     ID_COMPRACASABUTTON = 3,
-    ID_CLOSEBUTTON = 4
+    ID_CLOSEBUTTON = 4,
+    ID_PASSABUTTON = 5
+    
 };
 
 class Gamepanel : public wxPanel
@@ -32,7 +34,8 @@ private:
     void onClose(wxCommandEvent& event);
     void onTimer(wxTimerEvent& event);
     void fineTurnoGiocatore();
-    
+    void passa(wxCommandEvent& event);
+
     Giocatore* giocatore;
     Giocatore* bot;
     std::unique_ptr<Tabellone> tabellone;
@@ -55,6 +58,7 @@ private:
     wxButton* buttonCompraCasa;
     wxButton* buttonCompraAlbergo;
     wxButton* closeButton;
+    wxButton* passaButton;
     wxTimer* m_timer;
     int m_moveSteps;
     bool m_isBotTurn;

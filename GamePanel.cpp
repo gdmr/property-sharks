@@ -9,6 +9,7 @@ wxBEGIN_EVENT_TABLE(Gamepanel, wxPanel)
     EVT_BUTTON(ID_LANCIADADOBUTTON, Gamepanel::lanciaDado)
     EVT_BUTTON(ID_COMPRACASABUTTON, Gamepanel::compraCasa)
     EVT_BUTTON(ID_CLOSEBUTTON, Gamepanel::onClose)
+    EVT_BUTTON(ID_PASSABUTTON, Gamepanel::passa)
     EVT_TIMER(wxID_ANY, Gamepanel::onTimer) 
 wxEND_EVENT_TABLE()
 
@@ -53,6 +54,7 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, Giocatore* bot, wxB
     
     wxButton* button = new wxButton(this, ID_COMPRABUTTON, "Compra proprietà");
     wxButton* lanciaDado = new wxButton(this, ID_LANCIADADOBUTTON, "Lancia i dadi");
+    wxButton* passaTurno = new wxButton(this, ID_PASSABUTTON, "Salta turno");
     closeButton = new wxButton(this, ID_CLOSEBUTTON, "Chiudi");
     closeButton->Hide();
     buttonCompraCasa = new wxButton(this, ID_COMPRACASABUTTON, "Compra casa");
@@ -100,10 +102,12 @@ Gamepanel::Gamepanel(wxWindow* parent, Giocatore* giocatore, Giocatore* bot, wxB
     setButtonStyle(lanciaDado);
     setButtonStyle(buttonCompraCasa);
     setButtonStyle(closeButton);
+    setButtonStyle(passaTurno);
 
     buttonSizer->Add(button, 0, wxALL | wxALIGN_CENTER, 5);
     buttonSizer->Add(lanciaDado, 0, wxALL | wxALIGN_CENTER, 5);
     buttonSizer->Add(buttonCompraCasa, 0, wxALL | wxALIGN_CENTER, 5);
+    buttonSizer->Add(passaTurno, 0, wxALL | wxALIGN_CENTER, 5);
     buttonSizer->Add(closeButton, 0, wxALL | wxALIGN_CENTER, 5);
     
     centerSizer->Add(buttonSizer, 0, wxALL | wxALIGN_CENTER, 5);
@@ -469,4 +473,9 @@ void Gamepanel::onTimer(wxTimerEvent& event)
 void Gamepanel::onClose(wxCommandEvent& event)
 {
     this->GetParent()->Close();
+}
+
+void Gamepanel::passa(wxCommandEvent& event)
+{
+   fineTurnoGiocatore();
 }

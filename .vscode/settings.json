@@ -46,6 +46,8 @@
         "__hash_table": "cpp",
         "hash_map": "cpp",
         "list": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "__node_handle": "cpp",
+        "optional": "cpp"
     }
 }
