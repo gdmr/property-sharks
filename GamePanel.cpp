@@ -9,6 +9,7 @@ wxBEGIN_EVENT_TABLE(Gamepanel, wxPanel)
     EVT_BUTTON(ID_LANCIADADOBUTTON, Gamepanel::lanciaDado)
     EVT_BUTTON(ID_COMPRACASABUTTON, Gamepanel::compraCasa)
     EVT_BUTTON(ID_CLOSEBUTTON, Gamepanel::onClose)
+    EVT_TIMER(wxID_ANY, Gamepanel::onTimer) 
 wxEND_EVENT_TABLE()
 
 
@@ -298,7 +299,7 @@ void Gamepanel::compraProprieta(wxCommandEvent& event)
     Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
     if (proprieta) {
         if (proprieta->getTitolo() == "START") {
-            wxMessageBox("Non puoi comprare la prorprietà", "Attento", wxOK | wxICON_ERROR);
+            wxMessageBox("Non puoi comprare la proprietà", "Attento", wxOK | wxICON_ERROR);
             return;
         }
         if (proprieta->getProprietario() == giocatore->getNome()) {
@@ -313,32 +314,37 @@ void Gamepanel::compraProprieta(wxCommandEvent& event)
             wxMessageBox("Il tuo saldo non è sufficiente per acquistare la proprietà", "Mi dispiace", wxOK | wxICON_ERROR);
             return;
         }
-    giocatore->acquistaProprieta(*proprieta);
-    saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
-    Refresh();}
+        giocatore->acquistaProprieta(*proprieta);
+        saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
+        Refresh();
+    }
+    fineTurnoGiocatore();
 }
 
-void Gamepanel::compraCasa(wxCommandEvent& event){
+void Gamepanel::compraCasa(wxCommandEvent& event)
+{
     std::shared_ptr tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
     Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
     if (proprieta) {
-    switch (giocatore->acquistaCasa(*proprieta))
-    {
-    case 0:
-        wxMessageBox("Casa acquistata", "Complimenti", wxOK | wxICON_INFORMATION);
-         housePositions.push_back(boardPositions[currentPlayerPosition]); 
-        break;
-     case 1:
-        wxMessageBox("Numero massimo di case raggiunto", "Attento", wxOK | wxICON_ERROR);
-        break;
-     case 2:
-        wxMessageBox("Saldo insufficiente", "Attento", wxOK | wxICON_ERROR);
-        break;
-     case 3:
-        wxMessageBox("Proprietario non corrisponde", "Attento", wxOK | wxICON_ERROR);
-        break;
+        switch (giocatore->acquistaCasa(*proprieta))
+        {
+        case 0:
+            wxMessageBox("Casa acquistata", "Complimenti", wxOK | wxICON_INFORMATION);
+            housePositions.push_back(boardPositions[currentPlayerPosition]); 
+            break;
+        case 1:
+            wxMessageBox("Numero massimo di case raggiunto", "Attento", wxOK | wxICON_ERROR);
+            break;
+        case 2:
+            wxMessageBox("Saldo insufficiente", "Attento", wxOK | wxICON_ERROR);
+            break;
+        case 3:
+            wxMessageBox("Proprietario non corrisponde", "Attento", wxOK | wxICON_ERROR);
+            break;
+        }
+        Refresh();
     }
-    }
+    fineTurnoGiocatore();
 }
 
 void Gamepanel::lanciaDado(wxCommandEvent& event)
@@ -346,8 +352,6 @@ void Gamepanel::lanciaDado(wxCommandEvent& event)
     checkGameOver();
     int risultato = dado->lanciaDadi();
     risultatolabel->SetLabel("esito lancio: " + std::to_string(risultato));
-    int posizionePrecedente = giocatore->getPosizione();
-
     FindWindowById(ID_COMPRABUTTON)->Disable();
     FindWindowById(ID_LANCIADADOBUTTON)->Disable();
     FindWindowById(ID_COMPRACASABUTTON)->Disable();
@@ -378,22 +382,13 @@ void Gamepanel::checkGameOver()
 
 void Gamepanel::eseguiTurnoBot()
 {
-    FindWindowById(ID_COMPRABUTTON)->Disable();
-    FindWindowById(ID_LANCIADADOBUTTON)->Disable();
-    FindWindowById(ID_COMPRACASABUTTON)->Disable();
     int risultato = dado->lanciaDadi();
-    bot->muoviGiocatore(risultato);
-    botPosition = bot->getPosizione();
-    Refresh();
-    turnoBot();
-    FindWindowById(ID_COMPRABUTTON)->Enable();
-    FindWindowById(ID_LANCIADADOBUTTON)->Enable();
-    FindWindowById(ID_COMPRACASABUTTON)->Enable();
+    m_moveSteps = risultato;
+    m_timer->Start(200);
 }
 
 void Gamepanel::turnoBot()
 {
-          
     std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(bot->getPosizione());
     if (!tesseraCorrente) {
         wxLogDebug("tesseraCorrente è nullptr");
@@ -419,8 +414,6 @@ void Gamepanel::turnoBot()
         // int affitto = proprieta->calcolaAffitto();
         // bot->pagaAffitto(*tabellone->getGiocatore(proprieta->getProprietario()), affitto);
     }
-
-    // Decisioni per l’acquisto di case
     for (Proprieta& prop : bot->getProprietaPossedute()) {
         if (bot->getSaldo() >= prop.getCostoCasa() && prop.getNumeroCase() < 4) {
             bot->acquistaCasa(prop);
@@ -430,36 +423,50 @@ void Gamepanel::turnoBot()
     Refresh();
 }
 
-void Gamepanel::onClose(wxCommandEvent& event)
+void Gamepanel::fineTurnoGiocatore()
 {
-    this->GetParent()->Close();
+    FindWindowById(ID_COMPRABUTTON)->Disable();
+    FindWindowById(ID_LANCIADADOBUTTON)->Disable();
+    FindWindowById(ID_COMPRACASABUTTON)->Disable();
+    
+    m_isBotTurn = true;
+    m_moveSteps = dado->lanciaDadi();
+    eseguiTurnoBot();
 }
 
 void Gamepanel::onTimer(wxTimerEvent& event)
 {
     if (m_isBotTurn) {
-        bot->muoviGiocatore(1);
-        botPosition = bot->getPosizione();
-    } else {
-        giocatore->muoviGiocatore(1);
-        currentPlayerPosition = giocatore->getPosizione();
-    }
-
-    m_moveSteps--;
-
-    if (m_moveSteps <= 0) {
-        m_timer->Stop();
-
-        if (m_isBotTurn) {
+        if (m_moveSteps > 0) {
+            bot->muoviGiocatore(1);
+            botPosition = bot->getPosizione();
+            m_moveSteps--;
+        }
+        if (m_moveSteps <= 0) {
+            m_timer->Stop();
+            turnoBot();
             FindWindowById(ID_COMPRABUTTON)->Enable();
             FindWindowById(ID_LANCIADADOBUTTON)->Enable();
             FindWindowById(ID_COMPRACASABUTTON)->Enable();
-        } else {
-            m_isBotTurn = true;
-            m_moveSteps = dado->lanciaDadi();
-            m_timer->Start(200);
+        }
+    } else {
+        if (m_moveSteps > 0) {
+            giocatore->muoviGiocatore(1);
+            currentPlayerPosition = giocatore->getPosizione();
+            m_moveSteps--;
+        }
+        if (m_moveSteps <= 0) {
+            m_timer->Stop();
+            FindWindowById(ID_COMPRABUTTON)->Enable();
+            FindWindowById(ID_LANCIADADOBUTTON)->Enable();
+            FindWindowById(ID_COMPRACASABUTTON)->Enable();
         }
     }
 
     Refresh();
+}
+
+void Gamepanel::onClose(wxCommandEvent& event)
+{
+    this->GetParent()->Close();
 }

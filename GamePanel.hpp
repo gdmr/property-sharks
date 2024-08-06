@@ -22,17 +22,17 @@ public:
     Gamepanel(wxWindow* parent, Giocatore* giocatore, Giocatore* bot, wxBitmap selectedPawn, wxBitmap botPawn);
 
 private:
-    void OnPaint(wxPaintEvent& event);
+     void OnPaint(wxPaintEvent& event);
     void compraProprieta(wxCommandEvent& event);
-    void lanciaDado(wxCommandEvent& event);
     void compraCasa(wxCommandEvent& event);
-    void compraAlbergo(wxCommandEvent& event);
+    void lanciaDado(wxCommandEvent& event);
     void checkGameOver();
-    void onClose(wxCommandEvent& event);
     void eseguiTurnoBot();
     void turnoBot();
+    void onClose(wxCommandEvent& event);
     void onTimer(wxTimerEvent& event);
-
+    void fineTurnoGiocatore();
+    
     Giocatore* giocatore;
     Giocatore* bot;
     std::unique_ptr<Tabellone> tabellone;
