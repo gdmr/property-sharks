@@ -60,9 +60,8 @@ void Giocatore::vendiProprieta(Proprieta proprieta, Giocatore acquirente){
     saldo= saldo + proprieta.getCosto();
 }
 
-void Giocatore::pagaAffitto(Giocatore proprietario, int importo){
-    proprietario.modificaSaldo(importo);
-    modificaSaldo(-importo);
+void Giocatore::pagaAffitto(Proprieta proprieta){
+    modificaSaldo(-proprieta.calcolaPagamento());
 }
 
  std::string Giocatore::getNome(){

@@ -440,12 +440,20 @@ void Gamepanel::turnoBot()
     std::cout << "tessera " << proprieta->getTitolo() << "\n";
 
     if (proprieta->getProprietario() == "banca") {
+        if (proprieta->getTitolo() == "START") {
+            return;
+        }
         if (bot->getSaldo() >= proprieta->getCosto()) {
             std::cout << "BOT ACQUISTA CASA\n";
             bot->acquistaProprieta(*proprieta);
         }
-    } else if (proprieta->getProprietario() != bot->getNome()) {
-        // int affitto = proprieta->calcolaAffitto();
+    } else if ((proprieta->getProprietario() != bot->getNome()) && (proprieta->getProprietario() !="banca")) {
+        int affitto = proprieta->calcolaPagamento();
+        std::cout << " affitto calcolato " << affitto <<"\n";
+        bot->pagaAffitto(*proprieta);
+        giocatore->modificaSaldo(affitto);
+        std::cout<<"bot paga"<<"\n";
+        saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
         // bot->pagaAffitto(*tabellone->getGiocatore(proprieta->getProprietario()), affitto);
     }
     for (Proprieta& prop : bot->getProprietaPossedute()) {
@@ -494,6 +502,17 @@ void Gamepanel::onTimer(wxTimerEvent& event)
             FindWindowById(ID_COMPRABUTTON)->Enable();
             FindWindowById(ID_LANCIADADOBUTTON)->Enable();
             FindWindowById(ID_COMPRACASABUTTON)->Enable();
+
+            std::shared_ptr<Tessera> tesseraCorrente = tabellone->getTessera(currentPlayerPosition);
+            if (tesseraCorrente) {
+                Proprieta* proprieta = dynamic_cast<Proprieta*>(tesseraCorrente.get());
+                if (proprieta && proprieta->getProprietario() == bot->getNome()) {
+                    giocatore->pagaAffitto(*proprieta);
+                    bot->modificaSaldo(proprieta->calcolaPagamento());
+                    saldo->SetLabel("saldo giocatore: " + std::to_string(giocatore->getSaldo()));
+                    std::cout<<"Giocatore paga"<<"\n";
+                }
+            }
         }
     }
 

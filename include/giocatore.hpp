@@ -26,7 +26,7 @@ public:
     void acquistaProprieta(Proprieta& proprieta);
     int acquistaCasa(Proprieta& proprieta);
     void vendiProprieta(Proprieta proprieta, Giocatore acquirente);
-    void pagaAffitto(Giocatore proprietario, int importo);
+    void pagaAffitto(Proprieta proprieta);
     int getSaldo() const;
     std::string getNome();
     int getPosizione() const;

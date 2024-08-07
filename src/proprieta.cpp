@@ -32,8 +32,10 @@ void Proprieta::costruisciAlbergo(){
 int Proprieta::calcolaPagamento() {
         if (albergo) {
             return costoAlbergo*3;
-        }
-        return numCase * costoCasa;
+        }else if(numCase>0){
+            return numCase * costoCasa;
+        } else
+        return costoProprieta/4;
 }
 
 int Proprieta::getCosto(){
