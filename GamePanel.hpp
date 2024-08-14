@@ -35,6 +35,7 @@ private:
     void onTimer(wxTimerEvent& event);
     void fineTurnoGiocatore();
     void passa(wxCommandEvent& event);
+    void controllavittoria();
 
     Giocatore* giocatore;
     Giocatore* bot;

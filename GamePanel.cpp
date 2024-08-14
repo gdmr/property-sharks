@@ -443,10 +443,19 @@ void Gamepanel::turnoBot()
         if (proprieta->getTitolo() == "START") {
             return;
         }
-        if (bot->getSaldo() >= proprieta->getCosto()) {
-            std::cout << "BOT ACQUISTA CASA\n";
-            bot->acquistaProprieta(*proprieta);
+        if (proprieta->getTipo() == "opportunita") {
+            return;
         }
+        if (proprieta->getTipo() == "inconvenienti") {
+            return;
+        }
+        if (bot->getSaldo() >= proprieta->getCosto() && proprieta->getProprietario() == "banca") {
+            std::cout << "BOT ACQUISTA PROPRIETA\n";
+            bot->acquistaProprieta(*proprieta);
+        } else if((bot->getSaldo() >= proprieta->getCosto()) && proprieta->getProprietario() == bot->getNome()) {
+            std::cout << "BOT ACQUISTA casa";
+            bot->acquistaCasa(*proprieta);
+            housePositions.push_back(boardPositions[botPosition]); }
     } else if ((proprieta->getProprietario() != bot->getNome()) && (proprieta->getProprietario() !="banca")) {
         int affitto = proprieta->calcolaPagamento();
         std::cout << " affitto calcolato " << affitto <<"\n";
@@ -461,7 +470,7 @@ void Gamepanel::turnoBot()
             bot->acquistaCasa(prop);
         }
     }
-
+    controllavittoria();
     Refresh();
 }
 
@@ -527,4 +536,25 @@ void Gamepanel::onClose(wxCommandEvent& event)
 void Gamepanel::passa(wxCommandEvent& event)
 {
    fineTurnoGiocatore();
+}
+
+void Gamepanel::controllavittoria()
+{
+    if (bot->getSaldo() < 0)
+    {
+        saldo->Hide();
+        risultatolabel->Hide();
+        tesseraInformativa->Hide();
+        FindWindowById(ID_COMPRABUTTON)->Hide();
+        FindWindowById(ID_LANCIADADOBUTTON)->Hide();
+        FindWindowById(ID_COMPRACASABUTTON)->Hide();
+        gameOverImage->Hide();
+        closeButton->Show();
+
+        wxBitmap winBitmap(wxT("img/win.png"), wxBITMAP_TYPE_PNG);
+        wxStaticBitmap* winImage = new wxStaticBitmap(this, wxID_ANY, winBitmap);
+        this->GetSizer()->Add(winImage, 0, wxALIGN_CENTER | wxTOP | wxBOTTOM, 10);
+        this->Layout();
+        Refresh();
+    }
 }
