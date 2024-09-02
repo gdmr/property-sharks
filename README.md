@@ -16,7 +16,7 @@
 4. **Run the game**:
    ./inizio
 
-5. **Have fun**:
+5. **Have fun**:<br>
 ![Game Preview](img/preview.gif)
 
 
