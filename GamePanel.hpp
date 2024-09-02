@@ -14,7 +14,8 @@ enum
     ID_LANCIADADOBUTTON = 2,
     ID_COMPRACASABUTTON = 3,
     ID_CLOSEBUTTON = 4,
-    ID_PASSABUTTON = 5
+    ID_PASSABUTTON = 5,
+    ID_COMPRAALBERGOBUTTON = 6
     
 };
 
@@ -36,6 +37,9 @@ private:
     void fineTurnoGiocatore();
     void passa(wxCommandEvent& event);
     void controllavittoria();
+    void compraAlbergo(wxCommandEvent& event);
+    void aggiornaBottoni(bool turnoGiocatore);
+    void controllaPrigione();
 
     Giocatore* giocatore;
     Giocatore* bot;
@@ -48,8 +52,10 @@ private:
     wxBitmap houseIcon1;
     wxBitmap houseIcon2; 
     wxBitmap houseIcon3; 
-    wxBitmap houseIcon4; 
+    wxBitmap houseIcon4;
+    wxBitmap hotelIcon; 
     wxStaticText* saldo;
+    wxStaticText* saldoBot;
     wxStaticText* risultatolabel;
     wxStaticText* tesseraInformativa;
     wxStaticBitmap* gameOverImage;
@@ -63,7 +69,12 @@ private:
     wxTimer* m_timer;
     int m_moveSteps;
     bool m_isBotTurn;
-    
+    int turniInPrigioneGiocatore;
+    int turniInPrigioneBot;
+    bool giocatoreInPrigione;
+    bool botInPrigione;
+
+
     std::vector<std::pair<int, int>> boardPositions;
     std::vector<std::pair<int, int>> housePositions;
     std::vector<int> houseCount;

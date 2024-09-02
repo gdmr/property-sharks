@@ -20,6 +20,8 @@ public:
     int getNumeroCase();
     int getCosto();
     int getCostoCasa();
+    int getCostoAlbergo();
+    bool hasAlbergo();
     bool operator==(Proprieta other);
     bool operator==(std::string titolo);
     std::string getTipo() const override { return "Proprieta";}

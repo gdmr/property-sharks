@@ -24,7 +24,6 @@ void Proprieta::aggiungiCasa(){
 void Proprieta::costruisciAlbergo(){
   if (numCase == 4) {
             albergo = true;
-            numCase = 0;
         }
 }
 
@@ -44,6 +43,14 @@ int Proprieta::getCosto(){
 
 int Proprieta::getCostoCasa(){
         return costoCasa;
+}
+
+int Proprieta::getCostoAlbergo(){
+        return costoCasa*3;
+}
+
+bool Proprieta::hasAlbergo(){
+    return albergo;
 }
 
   // Operatore di uguaglianza
